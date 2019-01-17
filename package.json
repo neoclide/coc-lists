@@ -1,0 +1,124 @@
+{
+  "name": "coc-lists",
+  "version": "1.0.1",
+  "description": "Basic list sources for coc.nvim",
+  "main": "lib/index.js",
+  "publisher": "chemzqm",
+  "keywords": [
+    "coc.nvim",
+    "list"
+  ],
+  "engines": {
+    "coc": "^0.0.49"
+  },
+  "scripts": {
+    "clean": "rimraf lib",
+    "build": "tsc -p tsconfig.json",
+    "prepare": "yarn clean && yarn build"
+  },
+  "activationEvents": [
+    "*"
+  ],
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "properties": {
+        "lists.disabledLists": {
+          "type": "array",
+          "default": [],
+          "description": "List names to disable form load.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "list.source.files.command": {
+          "type": "string",
+          "default": "rg",
+          "description": "Command used for search for files"
+        },
+        "list.source.files.args": {
+          "type": "array",
+          "default": [
+            "--color",
+            "never",
+            "--files"
+          ],
+          "description": "Arguments for search command",
+          "items": {
+            "type": "string"
+          }
+        },
+        "list.source.files.excludePatterns": {
+          "type": "array",
+          "default": [],
+          "description": "Minimatch patterns that should be excluded.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "list.source.mru.maxLength": {
+          "type": "number",
+          "default": 1000,
+          "description": "Max length of mru list."
+        },
+        "list.source.mru.ignoreGitIgnore": {
+          "type": "boolean",
+          "default": false,
+          "description": "Ignore git ignored files."
+        },
+        "list.source.mru.excludePatterns": {
+          "type": "array",
+          "default": [
+            "**/.git/*",
+            "/tmp/*"
+          ],
+          "description": "Minimatch patterns that should be excluded.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "list.source.grep.command": {
+          "type": "string",
+          "default": "rg",
+          "description": "Command used for grep, default to 'rg'."
+        },
+        "list.source.grep.args": {
+          "type": "array",
+          "default": [],
+          "description": "Arguments for grep command, always used for grep",
+          "items": {
+            "type": "string"
+          }
+        },
+        "list.source.grep.excludePatterns": {
+          "type": "array",
+          "default": [],
+          "description": "Minimatch patterns of files that should be excluded, use .ignore file is recommended.",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "author": "chemzqm@gmail.com",
+  "license": "MIT",
+  "devDependencies": {
+    "@chemzqm/tsconfig": "^0.0.3",
+    "@chemzqm/tslint-config": "^1.0.17",
+    "@types/colors": "^1.2.1",
+    "@types/minimatch": "^3.0.3",
+    "@types/node": "^10.12.9",
+    "coc.nvim": "^0.0.46",
+    "rimraf": "^2.6.2",
+    "tslint": "^5.11.0",
+    "typescript": "^3.2.2"
+  },
+  "dependencies": {
+    "colors": "^1.3.3",
+    "minimatch": "^3.0.4",
+    "tslib": "^1.9.3",
+    "vscode-languageserver-protocol": "^3.13.0",
+    "vscode-uri": "^1.0.6"
+  }
+}
