@@ -11,6 +11,10 @@
   "engines": {
     "coc": "^0.0.49"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/neoclide/coc-lists.git"
+  },
   "scripts": {
     "clean": "rimraf lib",
     "build": "tsc -p tsconfig.json",
