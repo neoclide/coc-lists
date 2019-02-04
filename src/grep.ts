@@ -1,40 +1,46 @@
 import { Neovim } from '@chemzqm/neovim'
 import { ChildProcess, spawn } from 'child_process'
-import { BasicList, ListContext, ListTask, workspace } from 'coc.nvim'
+import { BasicList, ListContext, ListTask, workspace, ListItem } from 'coc.nvim'
 import { EventEmitter } from 'events'
 import path from 'path'
 import readline from 'readline'
 import { Location, Position, Range } from 'vscode-languageserver-protocol'
 import Uri from 'vscode-uri'
 import minimatch from 'minimatch'
-import { convertOptions } from './option'
-import { ansiparse } from './ansiparse'
+import { convertOptions } from './util/option'
+import { ansiparse } from './util/ansiparse'
+import { executable } from './util'
 
 const lineRegex = /^(.+):(\d+):(\d+):(.*)/
 const controlCode = '\x1b'
 
 class Task extends EventEmitter implements ListTask {
   private process: ChildProcess
-  constructor() {
+  constructor(private interactive: boolean) {
     super()
   }
 
   public start(cmd: string, args: string[], cwd: string, patterns: string[]): void {
     this.process = spawn(cmd, args, { cwd })
+    this.process.on('error', e => {
+      this.emit('error', e.message)
+    })
+    this.process.stderr.on('data', chunk => {
+      console.error(chunk.toString('utf8')) // tslint:disable-line
+    })
     const rl = readline.createInterface(this.process.stdout)
     let hasPattern = patterns.length > 0
-    this.process.stderr.on('data', chunk => {
-      this.emit('error', chunk.toString('utf8'))
-    })
 
     rl.on('line', line => {
       let ms: RegExpMatchArray
+      let escaped: string
       if (line.indexOf(controlCode) !== -1) {
         let parts = ansiparse(line)
-        let content = parts.reduce((s, curr) => s + curr.text, '')
-        ms = content.match(lineRegex)
+        escaped = parts.reduce((s, curr) => s + curr.text, '')
+        ms = escaped.match(lineRegex)
       } else {
         ms = line.match(lineRegex)
+        escaped = line
       }
       if (!ms) return
       let file = path.join(cwd, ms[1])
@@ -43,6 +49,7 @@ class Task extends EventEmitter implements ListTask {
       let location = Location.create(Uri.file(file).toString(), Range.create(pos, pos))
       this.emit('data', {
         label: line,
+        filterText: this.interactive ? '' : escaped,
         location
       })
     })
@@ -60,17 +67,41 @@ class Task extends EventEmitter implements ListTask {
 
 export default class GrepList extends BasicList {
   public readonly interactive = true
+  public readonly description = 'grep text by rg or ag'
   public readonly name = 'grep'
   public readonly defaultAction = 'open'
-  public description = 'grep text by rg or ag'
+  public readonly detail = 'Literal match is used by default.\nTo use interactive mode, add `-I` to LIST OPTIONS.\nTo change colors, checkout `man rg` or `man ag`\nGrep source provide some uniformed options to ease differences between rg and ag.\n'
+  public options = [{
+    name: '-S, -smartcase',
+    description: 'Use smartcase match.'
+  }, {
+    name: '-i, -ignorecase',
+    description: 'Use ignorecase match.'
+  }, {
+    name: '-l, -literal',
+    description: 'Treat the pattern as a literal string, used when -regex is not used.'
+  }, {
+    name: '-w, -word',
+    description: 'Use word match.'
+  }, {
+    name: '-e, -regex',
+    description: 'Use regex match.'
+  }, {
+    name: '-u, -skip-vcs-ignores',
+    description: 'Don\'t respect version control ignore files(.gitignore, etc.)'
+  }, {
+    name: '-t, -extension EXTENSION',
+    description: 'Grep files with specified extension only, could be used multiple times.'
+  }]
 
   constructor(nvim: Neovim) {
     super(nvim)
     this.addLocationActions()
   }
 
-  public async loadItems(context: ListContext): Promise<ListTask> {
+  public async loadItems(context: ListContext): Promise<ListTask | ListItem[]> {
     let { nvim } = this
+    let { interactive } = context.options
     let config = workspace.getConfiguration('list.source.grep')
     let cmd = config.get<string>('command', 'rg')
     let args = config.get<string[]>('args', []).slice()
@@ -79,7 +110,8 @@ export default class GrepList extends BasicList {
     } else if (cmd == 'ag') {
       args.push('--color', '--vimgrep')
     }
-    if (context.options.interactive && !context.input) return null
+    if (!executable(cmd)) throw new Error(`Command '${cmd}' not found on $PATH`)
+    if (interactive && !context.input) return []
     args.push(...context.args)
     if (context.input) args.push(context.input)
 
@@ -92,7 +124,7 @@ export default class GrepList extends BasicList {
     } else {
       cwd = await nvim.call('getcwd')
     }
-    let task = new Task()
+    let task = new Task(interactive)
     if (cmd == 'rg' || cmd == 'ag') {
       args = convertOptions(args, cmd)
     }

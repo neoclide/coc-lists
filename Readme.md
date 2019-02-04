@@ -7,7 +7,7 @@ Including:
 - [x] `files` search files from current cwd.
 - [x] `mru` most recent used files.
 - [x] `grep` grep text from current cwd.
-- [x] `words` search word from current buffer
+- [x] `words` search word in current buffer
 - [x] `locationlist` items from vim's location list.
 - [x] `quickfix` items from vim's quickfix list.
 - [x] `buffers` current buffer list.
@@ -29,14 +29,9 @@ In your vim/neovim, run command:
 
 ## Options
 
-- `lists.disabledLists` disabled list of source names.
-- `list.source.files.command` command used for search for files, should return
-  file for each line, default: `rg`
-- `list.source.files.args` arguments used for command, default: `['--color', 'never', '--files']`.
-- `list.source.files.excludePatterns` exclud minimatch patterns for paths, default: `[]`.
-- `list.source.mru.maxLength` max length for mru list, default: 1000,
-- `list.source.mru.ignoreGitIgnore` ignore git ignored files, default: false,
-- `list.source.mru.excludePatterns` minimatch patterns for excluded paths, default: `["**/.git/*", "/tmp/*"]`.
+Type `lists.source` to in coc-settings.json to get available options.
+
+Type `?` on normal mode to get detail help of current list.
 
 ## Commands
 
@@ -82,7 +77,7 @@ function! s:GrepFromSelected(type)
 endfunction
 ```
 
-Q: How to grep word in current buffer?
+Q: How to grep current word in current buffer?
 
 A: Create kep-mapping like:
 

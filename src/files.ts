@@ -7,6 +7,8 @@ import readline from 'readline'
 import { Location, Range } from 'vscode-languageserver-protocol'
 import Uri from 'vscode-uri'
 import minimatch from 'minimatch'
+import findUp from 'find-up'
+import { executable } from './util'
 
 class Task extends EventEmitter implements ListTask {
   private process: ChildProcess
@@ -16,11 +18,14 @@ class Task extends EventEmitter implements ListTask {
 
   public start(cmd: string, args: string[], cwd: string, patterns: string[]): void {
     this.process = spawn(cmd, args, { cwd })
+    this.process.on('error', e => {
+      this.emit('error', e.message)
+    })
     const rl = readline.createInterface(this.process.stdout)
     const range = Range.create(0, 0, 0, 0)
     let hasPattern = patterns.length > 0
     this.process.stderr.on('data', chunk => {
-      this.emit('error', chunk.toString('utf8'))
+      console.error(chunk.toString('utf8')) // tslint:disable-line
     })
 
     rl.on('line', line => {
@@ -48,18 +53,47 @@ export default class FilesList extends BasicList {
   public readonly name = 'files'
   public readonly defaultAction = 'open'
   public description = 'search file from cwd'
+  private excludePatterns: string[]
 
   constructor(nvim: Neovim) {
     super(nvim)
     this.addLocationActions()
+    let config = workspace.getConfiguration('list.source.files')
+    this.excludePatterns = config.get<string[]>('excludePatterns', [])
+    workspace.onDidChangeConfiguration(e => {
+      if (e.affectsConfiguration('list.source.files')) {
+        let config = workspace.getConfiguration('list.source.files')
+        this.excludePatterns = config.get<string[]>('excludePatterns', [])
+      }
+    })
+  }
+
+  public getCommand(cwd: string): { cmd: string, args: string[] } {
+    let config = workspace.getConfiguration('list.source.files')
+    let cmd = config.get<string>('command', '')
+    let args = config.get<string[]>('args', [])
+    if (!cmd) {
+      if (executable('rg')) {
+        return { cmd: 'rg', args: ['--color', 'never', '--files'] }
+      } else if (executable('ag')) {
+        return { cmd: 'ag', args: ['-f', '-g', '.', '--nocolor'] }
+      } else if (executable('git') && findUp.sync('.git', { cwd })) {
+        return { cmd: 'git', args: ['ls-files'] }
+      } else if (process.platform == 'win32') {
+        return { cmd: 'dir', args: ['/a-D', '/S', '/B'] }
+      } else if (executable('find')) {
+        return { cmd: 'find', args: ['.', '-type', 'f'] }
+      } else {
+        workspace.showMessage('Unable to find command for files list.', 'error')
+        return null
+      }
+    } else {
+      return { cmd, args }
+    }
   }
 
   public async loadItems(context: ListContext): Promise<ListTask> {
     let { nvim } = this
-    let config = workspace.getConfiguration('list.source.files')
-    let cmd = config.get<string>('command', 'rg')
-    let args = config.get<string[]>('args', ['--color', 'never', '--files'])
-    let patterns = config.get<string[]>('excludePatterns', [])
     let { window } = context
     let valid = await window.valid
     let cwd: string
@@ -68,11 +102,10 @@ export default class FilesList extends BasicList {
     } else {
       cwd = await nvim.call('getcwd')
     }
+    let res = this.getCommand(cwd)
+    if (!res) return null
     let task = new Task()
-    task.start(cmd, args, cwd, patterns)
+    task.start(res.cmd, res.args, cwd, this.excludePatterns)
     return task
-  }
-
-  public doHighlight(): void {
   }
 }
