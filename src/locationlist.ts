@@ -57,7 +57,9 @@ export default class LocationList extends BasicList {
     nvim.command('highlight default link CocLocationlistPosition LineNr', true)
     nvim.command('highlight default link CocLocationlistError Error', true)
     nvim.command('highlight default link CocLocationlistWarning WarningMsg', true)
-    nvim.resumeNotification()
+    nvim.resumeNotification().catch(_e => {
+      // noop
+    })
   }
 }
 
