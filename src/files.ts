@@ -1,10 +1,10 @@
 import { Neovim } from '@chemzqm/neovim'
 import { ChildProcess, spawn } from 'child_process'
-import { BasicList, ListContext, ListTask, workspace } from 'coc.nvim'
+import { BasicList, ListContext, ListTask, workspace, listManager } from 'coc.nvim'
 import { EventEmitter } from 'events'
 import path from 'path'
 import readline from 'readline'
-import { Location, Range } from 'vscode-languageserver-protocol'
+import { Location, Range, Disposable } from 'vscode-languageserver-protocol'
 import Uri from 'vscode-uri'
 import minimatch from 'minimatch'
 import findUp from 'find-up'
@@ -108,4 +108,9 @@ export default class FilesList extends BasicList {
     task.start(res.cmd, res.args, cwd, this.excludePatterns)
     return task
   }
+}
+
+export function regist(disabled: string[], disposables: Disposable[]): void {
+  if (disabled.indexOf('files') !== -1) return
+  disposables.push(listManager.registerList(new FilesList(workspace.nvim)))
 }

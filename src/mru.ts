@@ -1,11 +1,11 @@
 import { Neovim } from '@chemzqm/neovim'
-import { BasicList, commands, Document, ListContext, ListItem, workspace, WorkspaceConfiguration } from 'coc.nvim'
+import { listManager, BasicList, commands, Document, ListContext, ListItem, workspace, WorkspaceConfiguration } from 'coc.nvim'
 import fs from 'fs'
 import minimatch from 'minimatch'
 import os from 'os'
 import path from 'path'
 import util from 'util'
-import { Location, Range } from 'vscode-languageserver-protocol'
+import { Location, Range, Disposable } from 'vscode-languageserver-protocol'
 import Uri from 'vscode-uri'
 
 const isWindows = process.platform == 'win32'
@@ -144,4 +144,9 @@ function wait(ms: number): Promise<any> {
       resolve()
     }, ms)
   })
+}
+
+export function regist(disabled: string[], disposables: Disposable[]): void {
+  if (disabled.indexOf('mru') !== -1) return
+  disposables.push(listManager.registerList(new MruList(workspace.nvim)))
 }

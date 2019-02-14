@@ -1,10 +1,10 @@
 import { Neovim } from '@chemzqm/neovim'
 import { ChildProcess, spawn } from 'child_process'
-import { BasicList, ListContext, ListTask, workspace, ListItem } from 'coc.nvim'
+import { BasicList, ListContext, ListTask, workspace, ListItem, listManager } from 'coc.nvim'
 import { EventEmitter } from 'events'
 import path from 'path'
 import readline from 'readline'
-import { Location, Position, Range } from 'vscode-languageserver-protocol'
+import { Location, Position, Range, Disposable } from 'vscode-languageserver-protocol'
 import Uri from 'vscode-uri'
 import minimatch from 'minimatch'
 import { convertOptions } from './util/option'
@@ -136,4 +136,9 @@ export default class GrepList extends BasicList {
 function byteSlice(content: string, start: number, end?: number): string {
   let buf = Buffer.from(content, 'utf8')
   return buf.slice(start, end).toString('utf8')
+}
+
+export function regist(disabled: string[], disposables: Disposable[]): void {
+  if (disabled.indexOf('grep') !== -1) return
+  disposables.push(listManager.registerList(new GrepList(workspace.nvim)))
 }

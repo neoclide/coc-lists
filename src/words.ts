@@ -1,6 +1,6 @@
-import { Range, Location } from 'vscode-languageserver-protocol'
+import { Range, Location, Disposable } from 'vscode-languageserver-protocol'
 import { Neovim } from '@chemzqm/neovim'
-import { workspace, BasicList, ListContext, ListItem } from 'coc.nvim'
+import { workspace, BasicList, ListContext, ListItem, listManager } from 'coc.nvim'
 import colors from 'colors/safe'
 
 const matchOperatorsRe = /[|\\{}()[\]^$+*?.]/g
@@ -52,4 +52,9 @@ function pad(n: number, total: number): string {
   let l = total - String(n).length
   if (l <= 0) return ''
   return ((new Array(l)).fill(' ').join(''))
+}
+
+export function regist(disabled: string[], disposables: Disposable[]): void {
+  if (disabled.indexOf('words') !== -1) return
+  disposables.push(listManager.registerList(new Words(workspace.nvim)))
 }
