@@ -40,10 +40,10 @@
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-3.0.3.tgz#3dca0e3f33b200fc7d1139c0cd96c1268cadfd9d"
   integrity sha512-tHq6qdbT9U1IRSGf14CL0pUlULksvY9OZ+5eEgl1N7t+OA3tGvNpxJCzuKQlsNgCVwbAs670L1vcVQi8j9HjnA==
 
-"@types/node@^11.9.5":
-  version "11.9.5"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-11.9.5.tgz#011eece9d3f839a806b63973e228f85967b79ed3"
-  integrity sha512-vVjM0SVzgaOUpflq4GYBvCpozes8OgIIS5gVXVka+OfK3hvnkC1i93U8WiY2OtNE4XUWyyy/86Kf6e0IHTQw1Q==
+"@types/node@^11.11.0":
+  version "11.11.0"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-11.11.0.tgz#070e9ce7c90e727aca0e0c14e470f9a93ffe9390"
+  integrity sha512-D5Rt+HXgEywr3RQJcGlZUCTCx1qVbCZpVk3/tOOA6spLNZdGm8BU+zRgdRYDoF1pO3RuXLxADzMrF903JlQXqg==
 
 "@types/which@^1.3.1":
   version "1.3.1"
@@ -135,10 +135,10 @@ chalk@^2.3.0:
     escape-string-regexp "^1.0.5"
     supports-color "^5.3.0"
 
-coc.nvim@^0.0.57:
-  version "0.0.57"
-  resolved "https://registry.yarnpkg.com/coc.nvim/-/coc.nvim-0.0.57.tgz#721cc338f66fc1e7cc705af09a7af8e27e741895"
-  integrity sha512-307JND9Ituma/csIqHy3QHlr5J9PPHNIL1LR/VH6O2w3SQjKA8aPoev/5mE/K4j5bd2H7qG0ahuVIwPes8avPw==
+coc.nvim@^0.0.58:
+  version "0.0.58"
+  resolved "https://registry.yarnpkg.com/coc.nvim/-/coc.nvim-0.0.58.tgz#d8b20724728253642ee79376b8be42262f22556d"
+  integrity sha512-OQ7C7grhApu1xVT3l7zvIMhk2aXy7WUUCX8DQEBSh+wnY8jSL5sWqp/EHGhb0kZ2ukgO+u2UJwBsr5XZ8elh8A==
   dependencies:
     "@chemzqm/neovim" "4.3.51"
     debounce "^1.2.0"
@@ -564,10 +564,10 @@ tslint-react@^3.2.0:
   dependencies:
     tsutils "^2.13.1"
 
-tslint@^5.13.0:
-  version "5.13.0"
-  resolved "https://registry.yarnpkg.com/tslint/-/tslint-5.13.0.tgz#239a2357c36b620d72d86744754b6fc088a25359"
-  integrity sha512-ECOOQRxXCYnUUePG5h/+Z1Zouobk3KFpIHA9aKBB/nnMxs97S1JJPDGt5J4cGm1y9U9VmVlfboOxA8n1kSNzGw==
+tslint@^5.13.1:
+  version "5.13.1"
+  resolved "https://registry.yarnpkg.com/tslint/-/tslint-5.13.1.tgz#fbc0541c425647a33cd9108ce4fd4cd18d7904ed"
+  integrity sha512-fplQqb2miLbcPhyHoMV4FU9PtNRbgmm/zI5d3SZwwmJQM6V0eodju+hplpyfhLWpmwrDNfNYU57uYRb8s0zZoQ==
   dependencies:
     babel-code-frame "^6.22.0"
     builtin-modules "^1.1.1"

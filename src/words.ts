@@ -1,6 +1,7 @@
-import { Range, Location, Disposable } from 'vscode-languageserver-protocol'
-import { workspace, Neovim, BasicList, ListContext, ListItem, listManager } from 'coc.nvim'
+import { BasicList, ListContext, ListItem, Neovim, workspace } from 'coc.nvim'
 import colors from 'colors/safe'
+import { Location, Range } from 'vscode-languageserver-protocol'
+import { pad } from './util'
 
 const matchOperatorsRe = /[|\\{}()[\]^$+*?.]/g
 
@@ -45,15 +46,4 @@ export default class Words extends BasicList {
     }
     return result
   }
-}
-
-function pad(n: number, total: number): string {
-  let l = total - String(n).length
-  if (l <= 0) return ''
-  return ((new Array(l)).fill(' ').join(''))
-}
-
-export function regist(disabled: string[], disposables: Disposable[]): void {
-  if (disabled.indexOf('words') !== -1) return
-  disposables.push(listManager.registerList(new Words(workspace.nvim)))
 }

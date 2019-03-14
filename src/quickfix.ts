@@ -1,7 +1,7 @@
-import { BasicList, ListContext, workspace, ListItem, listManager } from 'coc.nvim'
-import { Neovim } from '@chemzqm/neovim'
+import { BasicList, ListContext, ListItem, Neovim, workspace } from 'coc.nvim'
+import { Location, Position, Range } from 'vscode-languageserver-protocol'
 import Uri from 'vscode-uri'
-import { Range, Position, Location, Disposable } from 'vscode-languageserver-protocol'
+import { characterIndex } from './util'
 
 export default class QuickfixList extends BasicList {
   public readonly name = 'quickfix'
@@ -63,14 +63,4 @@ export default class QuickfixList extends BasicList {
       // noop
     })
   }
-}
-
-function characterIndex(content: string, byteIndex: number): number {
-  let buf = Buffer.from(content, 'utf8')
-  return buf.slice(0, byteIndex).toString('utf8').length
-}
-
-export function regist(disabled: string[], disposables: Disposable[]): void {
-  if (disabled.indexOf('quickfix') !== -1) return
-  disposables.push(listManager.registerList(new QuickfixList(workspace.nvim)))
 }

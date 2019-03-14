@@ -1,12 +1,12 @@
-import { Neovim } from '@chemzqm/neovim'
-import { listManager, BasicList, commands, Document, ListContext, ListItem, workspace, WorkspaceConfiguration } from 'coc.nvim'
+import { BasicList, commands, Document, ListContext, ListItem, Neovim, workspace, WorkspaceConfiguration } from 'coc.nvim'
 import fs from 'fs'
 import minimatch from 'minimatch'
 import os from 'os'
 import path from 'path'
 import util from 'util'
-import { Location, Range, Disposable } from 'vscode-languageserver-protocol'
+import { Location, Range } from 'vscode-languageserver-protocol'
 import Uri from 'vscode-uri'
+import { wait } from './util'
 
 const isWindows = process.platform == 'win32'
 const root = isWindows ? path.join(os.homedir(), 'AppData/Local/coc') : path.join(os.homedir(), '.config/coc')
@@ -136,17 +136,4 @@ export default class MruList extends BasicList {
       }
     })
   }
-}
-
-function wait(ms: number): Promise<any> {
-  return new Promise(resolve => {
-    setTimeout(() => {
-      resolve()
-    }, ms)
-  })
-}
-
-export function regist(disabled: string[], disposables: Disposable[]): void {
-  if (disabled.indexOf('mru') !== -1) return
-  disposables.push(listManager.registerList(new MruList(workspace.nvim)))
 }

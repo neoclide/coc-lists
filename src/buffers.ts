@@ -1,7 +1,5 @@
-import { Neovim, Window } from '@chemzqm/neovim'
-import { BasicList, ListContext, ListItem, listManager, workspace } from 'coc.nvim'
+import { BasicList, ListContext, ListItem, Neovim, Window } from 'coc.nvim'
 import colors from 'colors/safe'
-import { Disposable } from 'vscode-languageserver-protocol'
 const regex = /^\s(\s*\d+)(.+?)"(.+)"\s+line\s+(\d+)/
 
 export default class BufferList extends BasicList {
@@ -104,9 +102,4 @@ export default class BufferList extends BasicList {
     }
     return res
   }
-}
-
-export function regist(disabled: string[], disposables: Disposable[]): void {
-  if (disabled.indexOf('buffers') !== -1) return
-  disposables.push(listManager.registerList(new BufferList(workspace.nvim)))
 }
