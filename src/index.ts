@@ -12,7 +12,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
   let config = workspace.getConfiguration('lists')
   let disabled = config.get<string[]>('disabledLists', [])
 
-  function isDisabled(name) {
+  function isDisabled(name): boolean {
     return disabled.indexOf(name) !== -1
   }
   if (!isDisabled('files')) {

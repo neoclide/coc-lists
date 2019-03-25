@@ -28,8 +28,8 @@ class Task extends EventEmitter implements ListTask {
     })
 
     rl.on('line', line => {
-      if (hasPattern && patterns.some(p => minimatch(file, p))) return
       let file = path.join(cwd, line)
+      if (hasPattern && patterns.some(p => minimatch(file, p))) return
       let location = Location.create(Uri.file(file).toString(), range)
       this.emit('data', {
         label: line,
