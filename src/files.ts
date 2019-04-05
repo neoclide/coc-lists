@@ -83,7 +83,7 @@ export default class FilesList extends BasicList {
       } else if (executable('find')) {
         return { cmd: 'find', args: ['.', '-type', 'f'] }
       } else {
-        workspace.showMessage('Unable to find command for files list.', 'error')
+        throw new Error('Unable to find command for files list.')
         return null
       }
     } else {
