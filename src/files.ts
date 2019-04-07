@@ -67,21 +67,25 @@ export default class FilesList extends BasicList {
     })
   }
 
+  private getArgs(args: string[], defaultArgs: string[]): string[] {
+    return args.length ? args : defaultArgs
+  }
+
   public getCommand(cwd: string): { cmd: string, args: string[] } {
     let config = workspace.getConfiguration('list.source.files')
     let cmd = config.get<string>('command', '')
     let args = config.get<string[]>('args', [])
     if (!cmd) {
       if (executable('rg')) {
-        return { cmd: 'rg', args: ['--color', 'never', '--files'] }
+        return { cmd: 'rg', args: this.getArgs(args, ['--color', 'never', '--files']) }
       } else if (executable('ag')) {
-        return { cmd: 'ag', args: ['-f', '-g', '.', '--nocolor'] }
+        return { cmd: 'ag', args: this.getArgs(args, ['-f', '-g', '.', '--nocolor']) }
       } else if (executable('git') && findUp.sync('.git', { cwd })) {
-        return { cmd: 'git', args: ['ls-files'] }
+        return { cmd: 'git', args: this.getArgs(args, ['ls-files']) }
       } else if (process.platform == 'win32') {
-        return { cmd: 'dir', args: ['/a-D', '/S', '/B'] }
+        return { cmd: 'dir', args: this.getArgs(args, ['/a-D', '/S', '/B']) }
       } else if (executable('find')) {
-        return { cmd: 'find', args: ['.', '-type', 'f'] }
+        return { cmd: 'find', args: this.getArgs(args, ['.', '-type', 'f']) }
       } else {
         throw new Error('Unable to find command for files list.')
         return null
