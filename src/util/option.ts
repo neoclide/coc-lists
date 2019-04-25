@@ -21,8 +21,8 @@ function getOption(opt: string, command: string): string {
 
 // export const optionList = options.map(o => o[1])
 
-export function convertOptions(list: string[], command: string): string[] {
-  let useLiteral = list.find(o => {
+export function convertOptions(list: string[], command: string, defaultLiteral = false): string[] {
+  let useLiteral = defaultLiteral && list.find(o => {
     return ['-e', '-regex', '-w', '-word', '-l', '-literal'].indexOf(o) != -1
   }) == null
   let res: string[] = []

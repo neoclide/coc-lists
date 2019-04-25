@@ -104,6 +104,7 @@ export default class GrepList extends BasicList {
     let config = workspace.getConfiguration('list.source.grep')
     let cmd = config.get<string>('command', 'rg')
     let args = config.get<string[]>('args', []).slice()
+    let useLiteral = config.get<boolean>('useLiteral', true)
     if (cmd == 'rg') {
       args.push('--color', 'always', '--vimgrep', '--colors', 'path:fg:white')
     } else if (cmd == 'ag') {
@@ -125,7 +126,7 @@ export default class GrepList extends BasicList {
     }
     let task = new Task(interactive)
     if (cmd == 'rg' || cmd == 'ag') {
-      args = convertOptions(args, cmd)
+      args = convertOptions(args, cmd, useLiteral)
     }
     task.start(cmd, args, cwd, patterns)
     return task

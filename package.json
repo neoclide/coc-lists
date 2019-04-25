@@ -77,6 +77,11 @@
             "type": "string"
           }
         },
+        "list.source.grep.useLiteral": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use literal match unless specified regex options, default: true."
+        },
         "list.source.grep.command": {
           "type": "string",
           "default": "rg",
