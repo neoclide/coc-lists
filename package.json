@@ -91,6 +91,11 @@
             "ag"
           ]
         },
+        "list.source.tags.command": {
+          "type": "string",
+          "default": "ctags -R .",
+          "description": "Command used for generate tags."
+        },
         "list.source.grep.args": {
           "type": "array",
           "default": [],

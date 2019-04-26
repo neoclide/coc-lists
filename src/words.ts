@@ -34,7 +34,7 @@ export default class Words extends BasicList {
       let idx = line.indexOf(input)
       if (idx != -1) {
         let range = Range.create(lnum - 1, idx, lnum - 1, idx + input.length)
-        let pre = `${colors.magenta(lnum.toString())}${pad(lnum, total)}`
+        let pre = `${colors.magenta(lnum.toString())}${pad(lnum.toString(), total)}`
         let text = line.replace(regex, colors.red(input))
         result.push({
           label: `${pre} ${text}`,

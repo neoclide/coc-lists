@@ -7,10 +7,24 @@ Including:
 - [x] `files` search files from current cwd.
 - [x] `mru` most recent used files.
 - [x] `grep` grep text from current cwd.
-- [x] `words` search word in current buffer
+- [x] `words` search word in current buffer.
 - [x] `locationlist` items from vim's location list.
 - [x] `quickfix` items from vim's quickfix list.
 - [x] `buffers` current buffer list.
+- [x] `helptags` helptags of vim.
+- [x] `tags` search tag files.
+- [x] `filetypes` file types.
+- [x] `colors` colors schemes.
+- [x] `marks` marks of vim.
+- [x] `windows` windows of vim.
+- [x] `vimcommands` available vim commands.
+- [x] `maps` key mappings.
+- [x] `cmdhistory` history of commands.
+- [x] `searchhistory` history of search.
+
+For snippets list, use [coc-snippets](https://github.com/neoclide/coc-snippets).
+
+For yank history, use [coc-yank](https://github.com/neoclide/coc-yank).
 
 ## Features
 
@@ -36,6 +50,7 @@ Type `?` on normal mode to get detail help of current list.
 ## Commands
 
 - `mru.validate` remove none exists files from mru list.
+- `tags.generate` generate tags of current project (in current cwd).
 
 ## F.A.Q
 
