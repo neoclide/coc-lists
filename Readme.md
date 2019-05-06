@@ -24,6 +24,8 @@ Including:
 
 For snippets list, use [coc-snippets](https://github.com/neoclide/coc-snippets).
 
+For git related list, use [coc-git](https://github.com/neoclide/coc-git).
+
 For yank history, use [coc-yank](https://github.com/neoclide/coc-yank).
 
 ## Features
