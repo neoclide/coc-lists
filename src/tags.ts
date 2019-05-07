@@ -32,7 +32,13 @@ export default class Helptags extends BasicList {
     let result: ListItem[] = []
     await Promise.all(tagfiles.map(file => {
       return new Promise<void>(resolve => {
-        let filepath = path.join(cwd, file)
+        let filepath = ""
+        if (file.startsWith('/') {
+          filepath = file
+        }
+        else {
+          filepath = path.join(cwd, file)
+        }
         let dirname = path.dirname(filepath)
         const rl = readline.createInterface({
           input: fs.createReadStream(filepath, { encoding: 'utf8' }),
