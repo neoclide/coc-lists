@@ -27,12 +27,12 @@ export default class Helptags extends BasicList {
     let cwd = await nvim.call('getcwd') as string
     let tagfiles = await nvim.call('tagfiles') as string[]
     if (!tagfiles || tagfiles.length == 0) {
-      throw new Error('no tagfiles found, use ":CocCommand tags.generate" to generate tagfile.')
+      throw new Error('no tag files found, use ":CocCommand tags.generate" to generate tagfile.')
     }
     let result: ListItem[] = []
     await Promise.all(tagfiles.map(file => {
       return new Promise<void>(resolve => {
-        let filepath = path.join(cwd, file)
+        let filepath = path.isAbsolute(file) ? file : path.join(cwd, file)
         let dirname = path.dirname(filepath)
         const rl = readline.createInterface({
           input: fs.createReadStream(filepath, { encoding: 'utf8' }),
