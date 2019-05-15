@@ -70,23 +70,29 @@ export default class BufferList extends BasicList {
   }
 
   public async loadItems(_context: ListContext): Promise<ListItem[]> {
-    let { nvim } = this
-    let content = await nvim.call('execute', 'ls') as string
-    let res: ListItem[] = []
-    for (let line of content.split(/\n/)) {
-      let ms = line.match(regex)
-      if (!ms) continue
-      res.push({
+    const { nvim } = this
+    const bufnrAlt = Number(await nvim.call('bufnr', '#'))
+    const content = await nvim.call('execute', 'ls') as string
+
+    return content.split(/\n/).reduce((res, line) => {
+      const ms = line.match(regex)
+      if (!ms) return res
+
+      const bufnr = Number(ms[1].trim())
+      const item: ListItem = {
         label: ` ${colors.magenta(ms[1])}${colors.america(ms[2])}${ms[3]}`,
         filterText: ms[3],
         data: {
+          bufnr,
           bufname: ms[3],
-          bufnr: Number(ms[1].trim()),
           lnum: Number(ms[4]),
           visible: ms[2].indexOf('a') !== -1
         }
-      })
-    }
-    return res
+      }
+
+      return bufnr === bufnrAlt
+        ? [item, ...res]
+        : [...res, item]
+    }, [])
   }
 }
