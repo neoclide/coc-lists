@@ -64,9 +64,10 @@ export default class MruList extends BasicList {
 
   private async _addRecentFile(doc: Document): Promise<void> {
     let uri = Uri.parse(doc.uri)
-    if (uri.scheme !== 'file') return
+    if (uri.scheme !== 'file' || doc.buftype != '') return
     let parts = uri.fsPath.split(path.sep)
-    if (parts.indexOf('.git') !== -1) return
+    if (parts.indexOf('.git') !== -1 || parts.length == 0) return
+    if (parts[parts.length - 1].startsWith('NERD_tree')) return
     let preview = await workspace.nvim.call('coc#util#is_preview', doc.bufnr)
     if (preview) return
     let filepath = uri.fsPath
