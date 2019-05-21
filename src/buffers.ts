@@ -69,22 +69,9 @@ export default class BufferList extends BasicList {
     })
   }
 
-  public async loadItems(context: ListContext): Promise<ListItem[]> {
+  public async loadItems(_context: ListContext): Promise<ListItem[]> {
     let { nvim } = this
-    let { window } = context
-    let currWin: Window
-    let buf = await window.buffer
-    let bufnr = await nvim.call('bufnr', '%')
-    if (bufnr != buf.id) {
-      // run command in invoked buffer
-      currWin = await nvim.window
-      await nvim.call('win_gotoid', window.id)
-    }
-    // let wins = await nvim.windows
     let content = await nvim.call('execute', 'ls') as string
-    if (currWin) {
-      await nvim.call('win_gotoid', currWin.id)
-    }
     let res: ListItem[] = []
     for (let line of content.split(/\n/)) {
       let ms = line.match(regex)
