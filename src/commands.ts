@@ -15,13 +15,22 @@ export default class Commands implements IList {
   constructor(private nvim: Neovim) {
     this.actions.push({
       name: 'execute',
-      execute: item => {
+      execute: async item => {
         if (Array.isArray(item)) return
         let { command, shabang, hasArgs } = item.data
         if (!hasArgs) {
           nvim.command(command, true)
         } else {
-          nvim.call('feedkeys', [`:${command}${shabang ? '' : ' '}`, 'n'], true)
+          const feedableCommand = `:${command}${shabang ? '' : ' '}`
+          const mode = await nvim.call('mode')
+          const isInsertMode = mode.startsWith('i')
+          if (isInsertMode) {
+            // For some reason `nvim.feedkeys` doesn't support CSI escapes, even though the
+            // docs say it should. So we force the escape here with double backslashes.
+            nvim.command(`call feedkeys("\\<C-O>${feedableCommand}", 'n')`, true)
+          } else {
+            nvim.feedKeys(feedableCommand, 'n', true)
+          }
         }
       }
     })
