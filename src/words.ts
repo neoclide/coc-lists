@@ -34,7 +34,7 @@ export default class Words extends BasicList {
     let result: ListItem[] = []
     let lnum = 1
     let total = doc.lineCount.toString().length
-    let flags = context.options.ignorecase ? 'ig' : 'g'
+    let flags = context.options.ignorecase ? 'igu' : 'gu'
     let source = input.replace(matchOperatorsRe, '\\$&')
     if (wordMatch) source = `\\b${source}\\b`
     let regex = new RegExp(source, flags)
