@@ -1,4 +1,5 @@
 import which from 'which'
+import path from 'path'
 
 export function executable(cmd: string): boolean {
   try {
@@ -50,4 +51,9 @@ export function distinct<T>(array: T[], keyFn?: (t: T) => string): T[] {
 
     return true
   })
+}
+
+export function isParentFolder(folder: string, filepath: string): boolean {
+  let rel = path.relative(folder, filepath)
+  return !rel.startsWith('..')
 }

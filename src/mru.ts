@@ -4,7 +4,7 @@ import minimatch from 'minimatch'
 import path from 'path'
 import { Location, Range } from 'vscode-languageserver-protocol'
 import Uri from 'vscode-uri'
-import { wait } from './util'
+import { wait, isParentFolder } from './util'
 
 export default class MruList extends BasicList {
   public readonly name = 'mru'
@@ -83,7 +83,7 @@ export default class MruList extends BasicList {
     let findAll = context.args.indexOf('-A') !== -1
     let files = await this.mru.load()
     const range = Range.create(0, 0, 0, 0)
-    if (!findAll) files = files.filter(file => file.startsWith(cwd))
+    if (!findAll) files = files.filter(file => isParentFolder(cwd, file))
     return files.map(file => {
       let location = Location.create(Uri.file(file).toString(), range)
       return {

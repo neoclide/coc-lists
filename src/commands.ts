@@ -29,7 +29,7 @@ export default class Commands implements IList {
             // docs say it should. So we force the escape here with double backslashes.
             nvim.command(`call feedkeys("\\<C-O>${feedableCommand}", 'n')`, true)
           } else {
-            nvim.feedKeys(feedableCommand, 'n', true)
+            await nvim.feedKeys(feedableCommand, 'n', true)
           }
         }
       }

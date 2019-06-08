@@ -4,6 +4,7 @@ import { Location, Position, Range } from 'vscode-languageserver-protocol'
 import Uri from 'vscode-uri'
 import fs from 'fs'
 import path from 'path'
+import { isParentFolder } from './util'
 
 export default class Helptags extends BasicList {
   public readonly name = 'tags'
@@ -43,7 +44,7 @@ export default class Helptags extends BasicList {
           if (!pattern) return
           let fullpath = path.join(dirname, file)
           let uri = Uri.file(fullpath).toString()
-          let relativeFile = fullpath.startsWith(cwd) ? path.relative(cwd, fullpath) : fullpath
+          let relativeFile = isParentFolder(cwd, fullpath) ? path.relative(cwd, fullpath) : fullpath
           result.push({
             label: `${name}\t${relativeFile}`,
             filterText: name,
