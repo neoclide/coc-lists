@@ -49,55 +49,31 @@ In your vim/neovim, run command:
 
 Available options for coc-lists:
 
-- "lists.disabledLists":~
+- `lists.disabledLists`: List names to disable form load., default: `[]`
 
-      	List names to disable form load.,  default: `[]`
+- `list.source.files.command`: Command used for search for files, default: `""`
 
-- "list.source.files.command":~
+- `list.source.files.args`: Arguments for search command, default: `[]`
 
-      	Command used for search for files,  default: `""`
+- `list.source.files.excludePatterns`: Minimatch patterns that should be excluded., default: `[]`
 
-- "list.source.files.args":~
+- `list.source.mru.maxLength`: Max length of mru list., default: `1000`
 
-      	Arguments for search command,  default: `[]`
+- `list.source.mru.ignoreGitIgnore`: Ignore git ignored files., default: `false`
 
-- "list.source.files.excludePatterns":~
+- `list.source.mru.excludePatterns`: Minimatch patterns that should be excluded., default: `["**/.git/*","/tmp/*"]`
 
-      	Minimatch patterns that should be excluded.,  default: `[]`
+- `list.source.grep.useLiteral`: Use literal match unless specified regex options, default: true., default: `true`
 
-- "list.source.mru.maxLength":~
-
-      	Max length of mru list.,  default: `1000`
-
-- "list.source.mru.ignoreGitIgnore":~
-
-      	Ignore git ignored files.,  default: `false`
-
-- "list.source.mru.excludePatterns":~
-
-      	Minimatch patterns that should be excluded.,  default: `["**/.git/*","/tmp/*"]`
-
-- "list.source.grep.useLiteral":~
-
-      	Use literal match unless specified regex options, default: true.,  default: `true`
-
-- "list.source.grep.command":~
-
-      	Command used for grep, default to 'rg'.,  default: `"rg"`
+- `list.source.grep.command`: Command used for grep, default to 'rg'., default: `"rg"`
 
       	Valid options: ["rg","ag"]
 
-- "list.source.tags.command":~
+- `list.source.tags.command`: Command used for generate tags., default: `"ctags -R ."`
 
-      	Command used for generate tags.,  default: `"ctags -R ."`
+- `list.source.grep.args`: Arguments for grep command, always used for grep, default: `[]`
 
-- "list.source.grep.args":~
-
-      	Arguments for grep command, always used for grep,  default: `[]`
-
-- "list.source.grep.excludePatterns":~
-
-      	Minimatch patterns of files that should be excluded, use .ignore file is recommended.,  default: `[]`
+- `list.source.grep.excludePatterns`: Minimatch patterns of files that should be excluded, use .ignore file is recommended., default: `[]`
 
 ## Commands
 
