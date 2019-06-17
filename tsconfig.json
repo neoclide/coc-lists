@@ -5,7 +5,6 @@
     "target": "es2017",
     "module": "commonjs",
     "moduleResolution": "node",
-    "importHelpers": true,
     "lib": ["es2018"],
     "plugins": []
   },
