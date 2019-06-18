@@ -21,6 +21,7 @@ Including:
 - [x] `maps` key mappings.
 - [x] `cmdhistory` history of commands.
 - [x] `searchhistory` history of search.
+- [x] `sessions` session list.
 
 For snippets list, use [coc-snippets](https://github.com/neoclide/coc-snippets).
 
