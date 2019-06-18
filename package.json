@@ -27,6 +27,11 @@
     "configuration": {
       "type": "object",
       "properties": {
+        "session.directory": {
+          "type": "string",
+          "default": "",
+          "description": "Directory for store session files, default to ~/.vim/sessions when empty."
+        },
         "lists.disabledLists": {
           "type": "array",
           "default": [],
@@ -113,7 +118,17 @@
           }
         }
       }
-    }
+    },
+    "commands": [
+      {
+        "command": "session.save",
+        "title": "Save current vim state to session file."
+      },
+      {
+        "command": "mru.validate",
+        "title": "Validate mru files list, which remove files that doesn't exist."
+      }
+    ]
   },
   "author": "chemzqm@gmail.com",
   "license": "MIT",

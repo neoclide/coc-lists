@@ -16,64 +16,69 @@ import Commands from './commands'
 import Maps from './maps'
 import Cmdhistory from './cmdhistory'
 import Searchhistory from './searchhistory'
+import SessionList from './session'
 
 export async function activate(context: ExtensionContext): Promise<void> {
   let { subscriptions } = context
   let config = workspace.getConfiguration('lists')
   let disabled = config.get<string[]>('disabledLists', [])
+  let { nvim } = workspace
 
   function isDisabled(name): boolean {
     return disabled.indexOf(name) !== -1
   }
+  if (!isDisabled('session')) {
+    subscriptions.push(listManager.registerList(new SessionList(nvim)))
+  }
   if (!isDisabled('cmdhistory')) {
-    subscriptions.push(listManager.registerList(new Cmdhistory(workspace.nvim)))
+    subscriptions.push(listManager.registerList(new Cmdhistory(nvim)))
   }
   if (!isDisabled('searchhistory')) {
-    subscriptions.push(listManager.registerList(new Searchhistory(workspace.nvim)))
+    subscriptions.push(listManager.registerList(new Searchhistory(nvim)))
   }
   if (!isDisabled('vimcommands')) {
-    subscriptions.push(listManager.registerList(new Commands(workspace.nvim)))
+    subscriptions.push(listManager.registerList(new Commands(nvim)))
   }
   if (!isDisabled('maps')) {
-    subscriptions.push(listManager.registerList(new Maps(workspace.nvim)))
+    subscriptions.push(listManager.registerList(new Maps(nvim)))
   }
   if (!isDisabled('colors')) {
-    subscriptions.push(listManager.registerList(new Colors(workspace.nvim)))
+    subscriptions.push(listManager.registerList(new Colors(nvim)))
   }
   if (!isDisabled('windows')) {
-    subscriptions.push(listManager.registerList(new Windows(workspace.nvim)))
+    subscriptions.push(listManager.registerList(new Windows(nvim)))
   }
   if (!isDisabled('marks')) {
-    subscriptions.push(listManager.registerList(new Marks(workspace.nvim)))
+    subscriptions.push(listManager.registerList(new Marks(nvim)))
   }
   if (!isDisabled('filetypes')) {
-    subscriptions.push(listManager.registerList(new Filetypes(workspace.nvim)))
+    subscriptions.push(listManager.registerList(new Filetypes(nvim)))
   }
   if (!isDisabled('files')) {
-    subscriptions.push(listManager.registerList(new FilesList(workspace.nvim)))
+    subscriptions.push(listManager.registerList(new FilesList(nvim)))
   }
   if (!isDisabled('tags')) {
-    subscriptions.push(listManager.registerList(new Tags(workspace.nvim)))
+    subscriptions.push(listManager.registerList(new Tags(nvim)))
   }
   if (!isDisabled('helptags')) {
-    subscriptions.push(listManager.registerList(new Helptags(workspace.nvim)))
+    subscriptions.push(listManager.registerList(new Helptags(nvim)))
   }
   if (!isDisabled('buffers')) {
-    subscriptions.push(listManager.registerList(new BufferList(workspace.nvim)))
+    subscriptions.push(listManager.registerList(new BufferList(nvim)))
   }
   if (!isDisabled('grep')) {
-    subscriptions.push(listManager.registerList(new GrepList(workspace.nvim)))
+    subscriptions.push(listManager.registerList(new GrepList(nvim)))
   }
   if (!isDisabled('LocationList')) {
-    subscriptions.push(listManager.registerList(new LocationList(workspace.nvim)))
+    subscriptions.push(listManager.registerList(new LocationList(nvim)))
   }
   if (!isDisabled('mru')) {
-    subscriptions.push(listManager.registerList(new MruList(workspace.nvim)))
+    subscriptions.push(listManager.registerList(new MruList(nvim)))
   }
   if (!isDisabled('quickfix')) {
-    subscriptions.push(listManager.registerList(new QuickfixList(workspace.nvim)))
+    subscriptions.push(listManager.registerList(new QuickfixList(nvim)))
   }
   if (!isDisabled('words')) {
-    subscriptions.push(listManager.registerList(new Words(workspace.nvim)))
+    subscriptions.push(listManager.registerList(new Words(nvim)))
   }
 }
