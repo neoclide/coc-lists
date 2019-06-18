@@ -37,13 +37,15 @@ In your vim/neovim, run command:
 :CocInstall coc-lists
 ```
 
-Checkout `:h coc-lsit`
+Checkout `:h coc-lsit` for usage.
 
 ## Options
 
 **Tip:** type `?` on normal mode to get detail help of current list.
 
 Available options for coc-lists:
+
+- `session.directory` directory for session files, default to `~/.vim/sessions`
 
 - `lists.disabledLists`: List names to disable form load., default: `[]`
 
@@ -61,9 +63,7 @@ Available options for coc-lists:
 
 - `list.source.grep.useLiteral`: Use literal match unless specified regex options, default: true., default: `true`
 
-- `list.source.grep.command`: Command used for grep, default to 'rg'., default: `"rg"`
-
-      	Valid options: ["rg","ag"]
+- `list.source.grep.command`: Command used for grep, default to 'rg'., default: `"rg"` could be `rg` or `ag`.
 
 - `list.source.tags.command`: Command used for generate tags., default: `"ctags -R ."`
 
@@ -75,6 +75,8 @@ Available options for coc-lists:
 
 - `mru.validate` remove none exists files from mru list.
 - `tags.generate` generate tags of current project (in current cwd).
+- `session.save` save current vim state to session file.
+- `session.load` load exists session file.
 
 ## F.A.Q
 
