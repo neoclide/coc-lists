@@ -64,7 +64,7 @@ export default class SessionList extends BasicList {
       request: true,
       callback: async () => {
         let curr = await this.nvim.getVvar('this_session') as string
-        await nvim.command(`silent mksession! ${curr}`)
+        if (curr) await nvim.command(`silent mksession! ${curr}`)
       }
     }))
   }
