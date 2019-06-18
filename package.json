@@ -125,6 +125,10 @@
         "title": "Save current vim state to session file."
       },
       {
+        "command": "session.load",
+        "title": "Load session by name."
+      },
+      {
         "command": "mru.validate",
         "title": "Validate mru files list, which remove files that doesn't exist."
       }

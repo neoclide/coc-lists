@@ -29,13 +29,7 @@ export default class SessionList extends BasicList {
 
     this.addAction('load', async (item, context) => {
       let filepath = Uri.parse(item.location.uri).fsPath
-      await this.mru.add(filepath)
-      let escaped = await nvim.call('fnameescape', [filepath])
-      nvim.pauseNotification()
-      nvim.command('noautocmd silent! %bwipeout!', true)
-      nvim.command(`silent! source ${escaped}`, true)
-      nvim.command('CocRestart', true)
-      await nvim.resumeNotification(false, true)
+      await this.loadSession(filepath)
     })
 
     this.disposables.push(commands.registerCommand('session.save', async (name?: string) => {
@@ -59,6 +53,29 @@ export default class SessionList extends BasicList {
       await nvim.command(`silent mksession! ${escaped}`)
       workspace.showMessage(`Saved session: ${name}`, 'more')
     }))
+
+    this.disposables.push(commands.registerCommand('session.load', async (name?: string) => {
+      if (!name) {
+        let folder = await this.getSessionFolder()
+        let files = await promisify(fs.readdir)(folder, { encoding: 'utf8' })
+        files = files.filter(p => p.endsWith('.vim'))
+        files = files.map(p => path.basename(p, '.vim'))
+        let idx = await workspace.showQuickpick(files, 'choose session:')
+        if (idx == -1) return
+        name = files[idx]
+      }
+      let filepath: string
+      if (path.isAbsolute(name)) {
+        filepath = name
+      } else {
+        let folder = await this.getSessionFolder()
+        filepath = path.join(folder, name.endsWith('.vim') ? name : `${name}.vim`)
+      }
+      setTimeout(async () => {
+        await this.loadSession(filepath)
+      }, 30)
+    }))
+
     this.disposables.push(workspace.registerAutocmd({
       event: 'VimLeavePre',
       request: true,
@@ -67,6 +84,17 @@ export default class SessionList extends BasicList {
         if (curr) await nvim.command(`silent mksession! ${curr}`)
       }
     }))
+  }
+
+  private async loadSession(filepath: string): Promise<void> {
+    let { nvim } = this
+    await this.mru.add(filepath)
+    let escaped = await nvim.call('fnameescape', [filepath])
+    nvim.pauseNotification()
+    nvim.command('noautocmd silent! %bwipeout!', true)
+    nvim.command(`silent! source ${escaped}`, true)
+    nvim.command('CocRestart', true)
+    await nvim.resumeNotification(false, true)
   }
 
   private async getSessionFolder(): Promise<string> {
@@ -82,6 +110,7 @@ export default class SessionList extends BasicList {
   public async loadItems(context: ListContext): Promise<ListItem[]> {
     let folder = await this.getSessionFolder()
     let files = await promisify(fs.readdir)(folder, { encoding: 'utf8' })
+    files = files.filter(p => p.endsWith('.vim'))
     let range = Range.create(0, 0, 0, 0)
     let curr = await this.nvim.getVvar('this_session') as string
     return files.map(file => {

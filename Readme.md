@@ -29,13 +29,6 @@ For git related list, use [coc-git](https://github.com/neoclide/coc-git).
 
 For yank history, use [coc-yank](https://github.com/neoclide/coc-yank).
 
-## Features
-
-- Match for filename would be prefered.
-- Match for start character of path segment would be prefered.
-- Files are sorted by mru when score is same.
-- Grep source use literal string by default.
-
 ## Install
 
 In your vim/neovim, run command:
@@ -43,6 +36,8 @@ In your vim/neovim, run command:
 ```
 :CocInstall coc-lists
 ```
+
+Checkout `:h coc-lsit`
 
 ## Options
 
