@@ -32,6 +32,11 @@
           "default": "",
           "description": "Directory for store session files, default to ~/.vim/sessions when empty."
         },
+        "session.restartOnSessionLoad": {
+          "type": "boolean",
+          "default": false,
+          "description": "Restart vim with cwd changed on session load, support neovim on iTerm2 only."
+        },
         "lists.disabledLists": {
           "type": "array",
           "default": [],
@@ -127,6 +132,10 @@
       {
         "command": "session.load",
         "title": "Load session by name."
+      },
+      {
+        "command": "session.restart",
+        "title": "Restart vim with current session."
       },
       {
         "command": "mru.validate",

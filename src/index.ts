@@ -28,7 +28,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
     return disabled.indexOf(name) !== -1
   }
   if (!isDisabled('session')) {
-    subscriptions.push(listManager.registerList(new SessionList(nvim)))
+    subscriptions.push(listManager.registerList(new SessionList(nvim, context.extensionPath)))
   }
   if (!isDisabled('cmdhistory')) {
     subscriptions.push(listManager.registerList(new Cmdhistory(nvim)))

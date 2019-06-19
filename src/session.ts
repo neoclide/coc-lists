@@ -15,7 +15,7 @@ export default class SessionList extends BasicList {
   private config: WorkspaceConfiguration
   private mru: Mru
 
-  constructor(nvim: Neovim) {
+  constructor(nvim: Neovim, private extensionPath: string) {
     super(nvim)
     this.mru = workspace.createMru('sessions')
     this.config = workspace.getConfiguration('list.source.sessions')
@@ -76,25 +76,56 @@ export default class SessionList extends BasicList {
       }, 30)
     }))
 
+    this.disposables.push(commands.registerCommand('session.restart', async () => {
+      if (!workspace.isNvim || process.env.TERM_PROGRAM != 'iTerm.app') {
+        workspace.showMessage('Sorry, restart support iTerm and neovim only.', 'warning')
+        return
+      }
+      let filepath = await this.nvim.getVvar('this_session') as string
+      if (!filepath) {
+        let folder = await this.getSessionFolder()
+        filepath = path.join(folder, 'default.vim')
+      }
+      let cwd = await nvim.call('getcwd')
+      let cmd = `${path.join(this.extensionPath, 'nvimstart')} ${filepath} ${cwd}`
+      nvim.call('jobstart', [cmd, { detach: 1 }], true)
+      nvim.command('silent! wa | silent quitall!', true)
+    }))
+
     this.disposables.push(workspace.registerAutocmd({
       event: 'VimLeavePre',
       request: true,
       callback: async () => {
         let curr = await this.nvim.getVvar('this_session') as string
-        if (curr) await nvim.command(`silent mksession! ${curr}`)
+        if (!curr) {
+          let folder = await this.getSessionFolder()
+          curr = path.join(folder, 'default.vim')
+        }
+        await nvim.command(`silent mksession! ${curr}`)
       }
     }))
   }
 
   private async loadSession(filepath: string): Promise<void> {
     let { nvim } = this
-    await this.mru.add(filepath)
-    let escaped = await nvim.call('fnameescape', [filepath])
-    nvim.pauseNotification()
-    nvim.command('noautocmd silent! %bwipeout!', true)
-    nvim.command(`silent! source ${escaped}`, true)
-    nvim.command('CocRestart', true)
-    await nvim.resumeNotification(false, true)
+    let config = workspace.getConfiguration('session')
+    let restart = config.get<boolean>('restartOnSessionLoad', false)
+    if (restart && workspace.isNvim && process.env.TERM_PROGRAM.startsWith('iTerm.app')) {
+      let content = await promisify(fs.readFile)(filepath, 'utf8')
+      let line = content.split(/\r?\n/).find(s => s.startsWith('cd '))
+      let cwd = line.replace(/^cd\s+/, '')
+      let cmd = `${path.join(this.extensionPath, 'nvimstart')} ${filepath} ${cwd}`
+      nvim.call('jobstart', [cmd, { detach: 1 }], true)
+      nvim.command('silent! wa | silent quitall!', true)
+    } else {
+      await this.mru.add(filepath)
+      let escaped = await nvim.call('fnameescape', [filepath])
+      nvim.pauseNotification()
+      nvim.command('noautocmd silent! %bwipeout!', true)
+      nvim.command(`silent! source ${escaped}`, true)
+      nvim.command('CocRestart', true)
+      await nvim.resumeNotification(false, true)
+    }
   }
 
   private async getSessionFolder(): Promise<string> {
@@ -113,8 +144,20 @@ export default class SessionList extends BasicList {
     files = files.filter(p => p.endsWith('.vim'))
     let range = Range.create(0, 0, 0, 0)
     let curr = await this.nvim.getVvar('this_session') as string
-    return files.map(file => {
+    let arr = await Promise.all(files.map(file => {
       let filepath = path.join(folder, file)
+      return promisify(fs.stat)(filepath).then(stat => {
+        return {
+          atime: stat.atime,
+          filepath
+        }
+      })
+    }))
+    arr.sort((a, b) => {
+      return a.atime.getTime() - b.atime.getTime()
+    })
+    files = arr.map(o => o.filepath)
+    return files.map(filepath => {
       let location = Location.create(Uri.file(filepath).toString(), range)
       let name = path.basename(filepath, '.vim')
       let active = curr && curr == filepath

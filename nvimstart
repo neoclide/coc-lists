@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+session=$1
+cwd=$2
+
+cat << EOF | osascript -
+tell application "iTerm2"
+	tell current window
+		tell current session
+			delay 0.2
+			write text "clear"
+			write text "cd $cwd"
+			write text "nvim -c 'silent! source $session'"
+		end tell
+	end tell
+end tell
+EOF
