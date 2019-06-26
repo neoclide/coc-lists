@@ -86,6 +86,7 @@ export default class SessionList extends BasicList {
         let folder = await this.getSessionFolder()
         filepath = path.join(folder, 'default.vim')
       }
+      await nvim.command(`silent mksession! ${filepath}`)
       let cwd = await nvim.call('getcwd')
       let cmd = `${path.join(this.extensionPath, 'nvimstart')} ${filepath} ${cwd}`
       nvim.call('jobstart', [cmd, { detach: 1 }], true)
