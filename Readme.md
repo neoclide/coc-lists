@@ -37,7 +37,7 @@ In your vim/neovim, run command:
 :CocInstall coc-lists
 ```
 
-Checkout `:h coc-lsit` for usage.
+Checkout `:h coc-list` for usage.
 
 ## Options
 
