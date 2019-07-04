@@ -132,6 +132,9 @@ export default class SessionList extends BasicList {
   private async getSessionFolder(): Promise<string> {
     let config = workspace.getConfiguration('session')
     let directory = config.get<string>('directory', '')
+    if (directory && /^~/.test(directory)) {
+      directory = directory.replace(/^~/, os.homedir())
+    }
     if (!directory) directory = path.join(os.homedir(), '.vim/sessions')
     if (!fs.existsSync(directory)) {
       await promisify(fs.mkdir)(directory, { recursive: true })
