@@ -113,7 +113,17 @@ export default class GrepList extends BasicList {
     if (!executable(cmd)) throw new Error(`Command '${cmd}' not found on $PATH`)
     if (interactive && !context.input) return []
     args.push(...context.args)
-    if (context.input) args.push(context.input)
+    if (context.input) {
+      if (interactive && context.input.indexOf(' ') != -1) {
+        let input = context.input.split(/\s+/).join('.*')
+        if (!args.includes('-regex') && !args.includes('-e')) {
+          args.push('-regex')
+        }
+        args.push(input)
+      } else {
+        args.push(context.input)
+      }
+    }
 
     let patterns = config.get<string[]>('excludePatterns', [])
     let { window } = context
