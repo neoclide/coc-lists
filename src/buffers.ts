@@ -1,6 +1,6 @@
 import { BasicList, workspace, ListContext, ListItem, Neovim, Window } from 'coc.nvim'
 import colors from 'colors/safe'
-const regex = /^\s(\s*\d+)(.+?)"(.+)"\s+line\s+(\d+)/
+const regex = /^\s(\s*\d+)(.+?)"(.+?)".*/
 
 export default class BufferList extends BasicList {
   public readonly name = 'buffers'
@@ -53,14 +53,15 @@ export default class BufferList extends BasicList {
 
     this.addAction('preview', async (item, context) => {
       let { nvim } = this
-      let { lnum, bufname } = item.data
+      let { bufname, bufnr } = item.data
+      let info = await nvim.call('getbufinfo', bufnr) as any
       if (bufname.startsWith('term://')) return
       let height = this.previewHeight
       let mod = context.options.position == 'top' ? 'below' : ''
       let winid = context.listWindow.id
       nvim.pauseNotification()
       nvim.command('pclose', true)
-      nvim.call('coc#util#open_file', [`${mod} ${height}sp +${lnum}`, bufname], true)
+      nvim.call('coc#util#open_file', [`${mod} ${height}sp +${info.lnum}`, bufname], true)
       let cmd = 'setl previewwindow winfixheight'
       nvim.command(cmd, true)
       nvim.command('normal! zt', true)
@@ -85,7 +86,6 @@ export default class BufferList extends BasicList {
         data: {
           bufnr,
           bufname: ms[3],
-          lnum: Number(ms[4]),
           visible: ms[2].indexOf('a') !== -1
         }
       }
