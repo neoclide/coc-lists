@@ -15,6 +15,13 @@ export default class Colors implements IList {
         nvim.command(`colorscheme ${item.data.name}`, true)
       }
     })
+    this.actions.push({
+      name: 'edit',
+      execute: item => {
+        if (Array.isArray(item)) return
+        nvim.command(`edit ${item.location.uri}`, true)
+      }
+    })
   }
 
   public async loadItems(_context: ListContext): Promise<ListItem[]> {
@@ -30,7 +37,8 @@ export default class Colors implements IList {
       return {
         label: `${name}\t${file}`,
         filterText: name,
-        data: { name }
+        data: {name},
+        location: {uri: file, line: '0'}
       }
     })
   }
