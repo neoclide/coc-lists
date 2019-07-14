@@ -69,6 +69,17 @@ Available options for coc-lists:
 
 ## F.A.Q
 
+Q: Hidden files not exists using files source.
+
+A: You have to pass `--hidden` to `ripgrep` by using configuration:
+
+    `list.source.files.args`: ['--hidden', '--files']
+
+Q: How to ignore files using files source.
+
+A: You can add `.ignore` file in your project root, which would be respected by
+`ripgrep` or use `list.sourcefiles.excludePatterns` configuration.
+
 Q: How to make grep easier?
 
 A: Create custom command like:
