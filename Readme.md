@@ -74,6 +74,7 @@ Q: How to make grep easier?
 A: Create custom command like:
 
 ```vim
+" grep word under cursor
 command! -nargs=+ -complete=custom,s:GrepArgs Rg exe 'CocList grep '.<q-args>
 
 function! s:GrepArgs(...)
@@ -81,6 +82,9 @@ function! s:GrepArgs(...)
         \ '-e', '-regex', '-u', '-skip-vcs-ignores', '-t', '-extension']
   return join(list, "\n")
 endfunction
+
+" Keymapping for grep word under cursor with interactive mode
+nnoremap <silent> <Leader>cf exe 'CocList -I --input='.expand('<cword>').' grep'<CR>
 ```
 
 Q: How to grep by motion?
