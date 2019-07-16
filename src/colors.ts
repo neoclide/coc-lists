@@ -1,4 +1,4 @@
-import { IList, ListAction, ListContext, ListItem, Neovim } from 'coc.nvim'
+import { IList, ListAction, ListContext, ListItem, Neovim, workspace, Uri } from 'coc.nvim'
 import path from 'path'
 
 export default class Colors implements IList {
@@ -13,6 +13,14 @@ export default class Colors implements IList {
       execute: item => {
         if (Array.isArray(item)) return
         nvim.command(`colorscheme ${item.data.name}`, true)
+      }
+    })
+
+    this.actions.push({
+      name: 'edit',
+      execute: item => {
+        if (Array.isArray(item)) return
+        workspace.jumpTo(item.location.uri)
       }
     })
   }
@@ -30,7 +38,8 @@ export default class Colors implements IList {
       return {
         label: `${name}\t${file}`,
         filterText: name,
-        data: { name }
+        data: { name },
+        location: { uri: Uri.file(file).toString(), line: '0' }
       }
     })
   }
