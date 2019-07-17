@@ -37,6 +37,11 @@
           "default": false,
           "description": "Restart vim with cwd changed on session load, support neovim on iTerm2 only."
         },
+        "session.automake": {
+          "type": "boolean",
+          "default": true,
+          "description": "Auto mksession when exiting vim"
+        },
         "lists.disabledLists": {
           "type": "array",
           "default": [],
