@@ -45,6 +45,7 @@ Checkout `:h coc-list` for usage.
 
 Available options for coc-lists:
 
+- `session.automake` automake `mksession` when exiting vim, default to `true`
 - `session.directory` directory for session files, default to `~/.vim/sessions`
 - `session.restartOnSessionLoad` Restart vim with cwd changed on session load, support neovim on iTerm2 only.
 - `lists.disabledLists`: List names to disable form load., default: `[]`

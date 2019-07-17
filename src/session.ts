@@ -93,18 +93,22 @@ export default class SessionList extends BasicList {
       nvim.command('silent! wa | silent quitall!', true)
     }))
 
-    this.disposables.push(workspace.registerAutocmd({
-      event: 'VimLeavePre',
-      request: true,
-      callback: async () => {
-        let curr = await this.nvim.getVvar('this_session') as string
-        if (!curr) {
-          let folder = await this.getSessionFolder()
-          curr = path.join(folder, 'default.vim')
+    let cfg = workspace.getConfiguration('session')
+    let automake = cfg.get<boolean>('automake', true)
+    if (automake) {
+      this.disposables.push(workspace.registerAutocmd({
+        event: 'VimLeavePre',
+        request: true,
+        callback: async () => {
+          let curr = await this.nvim.getVvar('this_session') as string
+          if (!curr) {
+            let folder = await this.getSessionFolder()
+            curr = path.join(folder, 'default.vim')
+          }
+          await nvim.command(`silent mksession! ${curr}`)
         }
-        await nvim.command(`silent mksession! ${curr}`)
-      }
-    }))
+      }))
+    }
   }
 
   private async loadSession(filepath: string): Promise<void> {
