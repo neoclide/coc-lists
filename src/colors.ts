@@ -1,27 +1,18 @@
-import { IList, ListAction, ListContext, ListItem, Neovim, workspace, Uri } from 'coc.nvim'
+import { IList, ListAction, BasicList, ListContext, ListItem, Neovim, workspace, Uri } from 'coc.nvim'
 import path from 'path'
 
-export default class Colors implements IList {
+export default class Colors extends BasicList {
   public readonly name = 'colors'
   public readonly description = 'color schemes'
   public readonly defaultAction = 'set'
   public actions: ListAction[] = []
 
-  constructor(private nvim: Neovim) {
-    this.actions.push({
-      name: 'set',
-      execute: item => {
-        if (Array.isArray(item)) return
-        nvim.command(`colorscheme ${item.data.name}`, true)
-      }
-    })
-
-    this.actions.push({
-      name: 'edit',
-      execute: item => {
-        if (Array.isArray(item)) return
-        workspace.jumpTo(item.location.uri)
-      }
+  constructor(nvim: Neovim) {
+    super(nvim)
+    this.addLocationActions()
+    this.addAction('set', item => {
+      if (Array.isArray(item)) return
+      nvim.command(`colorscheme ${item.data.name}`, true)
     })
   }
 
@@ -39,7 +30,7 @@ export default class Colors implements IList {
         label: `${name}\t${file}`,
         filterText: name,
         data: { name },
-        location: { uri: Uri.file(file).toString(), line: '0' }
+        location: Uri.file(file).toString()
       }
     })
   }

@@ -9,23 +9,21 @@ import { wait, isParentFolder } from './util'
 export default class MruList extends BasicList {
   public readonly name = 'mru'
   public readonly defaultAction = 'open'
-  public description = 'most recent used files'
+  public description = 'most recent used files in current cwd'
   public detail = `Use command 'mru.validate' to remove files that not exists any more.`
   public options = [{
     name: '-A',
     description: 'Show all recent files instead of filter by cwd.'
   }]
   private promise: Promise<void> = Promise.resolve(undefined)
-  private config: WorkspaceConfiguration
   private mru: Mru
 
   constructor(nvim: Neovim) {
     super(nvim)
     this.mru = workspace.createMru('mru')
-    this.config = workspace.getConfiguration('list.source.mru')
     this.addLocationActions()
     this.addAction('delete', async (item, _context) => {
-      let filepath = Uri.parse(item.location.uri).fsPath
+      let filepath = Uri.parse(item.data.uri).fsPath
       await this.mru.remove(filepath)
     }, { reload: true, persist: true })
 
@@ -65,14 +63,15 @@ export default class MruList extends BasicList {
   private async _addRecentFile(doc: Document): Promise<void> {
     let uri = Uri.parse(doc.uri)
     if (uri.scheme !== 'file' || doc.buftype != '') return
+    if (doc.filetype == 'netrw') return
+    if (doc.uri.indexOf('NERD_tree') !== -1) return
     let parts = uri.fsPath.split(path.sep)
     if (parts.indexOf('.git') !== -1 || parts.length == 0) return
-    if (parts[parts.length - 1].startsWith('NERD_tree')) return
-    let preview = await workspace.nvim.call('coc#util#is_preview', doc.bufnr)
-    if (preview) return
+    let preview = await this.nvim.eval(`getwinvar(bufwinnr(${doc.bufnr}), '&previewwindow')`)
+    if (preview == 1) return
     let filepath = uri.fsPath
-    let patterns = this.config.get<string[]>('excludePatterns', [])
-    let ignoreGitIgnore = this.config.get<boolean>('ignoreGitIgnore', false)
+    let patterns = this.config.get<string[]>('source.mru.excludePatterns', [])
+    let ignoreGitIgnore = this.config.get<boolean>('source.mru.ignoreGitIgnore', false)
     if (ignoreGitIgnore && doc.isIgnored) return
     if (patterns.some(p => minimatch(filepath, p))) return
     await this.mru.add(filepath)
@@ -85,9 +84,11 @@ export default class MruList extends BasicList {
     const range = Range.create(0, 0, 0, 0)
     if (!findAll) files = files.filter(file => isParentFolder(cwd, file))
     return files.map(file => {
-      let location = Location.create(Uri.file(file).toString(), range)
+      let uri = Uri.file(file).toString()
+      let location = Location.create(uri.toString(), range)
       return {
         label: findAll ? file : path.relative(cwd, file),
+        data: { uri },
         location
       }
     })

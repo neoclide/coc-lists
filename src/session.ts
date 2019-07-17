@@ -12,23 +12,21 @@ export default class SessionList extends BasicList {
   public readonly defaultAction = 'load'
   public description = 'session list'
   public detail = `After session load, coc service would be restarted.`
-  private config: WorkspaceConfiguration
   private mru: Mru
 
   constructor(nvim: Neovim, private extensionPath: string) {
     super(nvim)
     this.mru = workspace.createMru('sessions')
-    this.config = workspace.getConfiguration('list.source.sessions')
     this.addLocationActions()
 
     this.addAction('delete', async item => {
-      let filepath = Uri.parse(item.location.uri).fsPath
+      let filepath = item.data.filepath
       await this.mru.remove(filepath)
       await promisify(fs.unlink)(filepath)
     }, { reload: true, persist: true })
 
     this.addAction('load', async (item, context) => {
-      let filepath = Uri.parse(item.location.uri).fsPath
+      let filepath = item.data.filepath
       await this.loadSession(filepath)
     })
 
@@ -94,7 +92,7 @@ export default class SessionList extends BasicList {
     }))
 
     let cfg = workspace.getConfiguration('session')
-    let automake = cfg.get<boolean>('automake', true)
+    let automake = cfg.get<boolean>('saveOnVimLeave', true)
     if (automake) {
       this.disposables.push(workspace.registerAutocmd({
         event: 'VimLeavePre',
@@ -166,11 +164,14 @@ export default class SessionList extends BasicList {
     })
     files = arr.map(o => o.filepath)
     return files.map(filepath => {
-      let location = Location.create(Uri.file(filepath).toString(), range)
+      filepath = filepath.replace(os.homedir(), '~')
+      let uri = Uri.file(filepath).toString()
+      let location = Location.create(uri, range)
       let name = path.basename(filepath, '.vim')
       let active = curr && curr == filepath
       return {
-        label: `${active ? '*' : ' '} ${name}\t${filepath.replace(os.homedir(), '~')}`,
+        label: `${active ? '*' : ' '} ${name}\t${uri}`,
+        data: { filepath },
         location
       }
     })
