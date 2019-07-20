@@ -8,6 +8,7 @@ Including:
 - [x] `mru` most recent used files.
 - [x] `grep` grep text from current cwd.
 - [x] `words` search word in current buffer.
+- [x] `lines` search lines by regex patterns.
 - [x] `locationlist` items from vim's location list.
 - [x] `quickfix` items from vim's quickfix list.
 - [x] `buffers` current buffer list.

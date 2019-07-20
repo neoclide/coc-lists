@@ -17,6 +17,7 @@ import Maps from './maps'
 import Cmdhistory from './cmdhistory'
 import Searchhistory from './searchhistory'
 import SessionList from './session'
+import LinesList from './lines'
 
 export async function activate(context: ExtensionContext): Promise<void> {
   let { subscriptions } = context
@@ -26,6 +27,9 @@ export async function activate(context: ExtensionContext): Promise<void> {
 
   function isDisabled(name): boolean {
     return disabled.indexOf(name) !== -1
+  }
+  if (!isDisabled('lines')) {
+    subscriptions.push(listManager.registerList(new LinesList(nvim)))
   }
   if (!isDisabled('session')) {
     subscriptions.push(listManager.registerList(new SessionList(nvim, context.extensionPath)))
