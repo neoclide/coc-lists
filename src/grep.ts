@@ -14,52 +14,59 @@ const lineRegex = /^(.+):(\d+):(\d+):(.*)/
 const controlCode = '\x1b'
 
 class Task extends EventEmitter implements ListTask {
-  private process: ChildProcess
+  private processes: ChildProcess[] = []
   constructor(private interactive: boolean) {
     super()
   }
 
-  public start(cmd: string, args: string[], cwd: string, patterns: string[]): void {
-    this.process = spawn(cmd, args, { cwd })
-    this.process.on('error', e => {
-      this.emit('error', e.message)
-    })
-    this.process.stderr.on('data', chunk => {
-      console.error(chunk.toString('utf8')) // tslint:disable-line
-    })
-    const rl = readline.createInterface(this.process.stdout)
-    let hasPattern = patterns.length > 0
-
-    rl.on('line', line => {
-      let ms: RegExpMatchArray
-      let escaped: string
-      if (line.indexOf(controlCode) !== -1) {
-        let parts = ansiparse(line)
-        escaped = parts.reduce((s, curr) => s + curr.text, '')
-        ms = escaped.match(lineRegex)
-      } else {
-        ms = line.match(lineRegex)
-        escaped = line
-      }
-      if (!ms) return
-      let file = path.join(cwd, ms[1])
-      if (hasPattern && patterns.some(p => minimatch(file, p))) return
-      let pos = Position.create(Number(ms[2]) - 1, byteSlice(ms[4], 0, Number(ms[3]) - 1).length)
-      let location = Location.create(Uri.file(file).toString(), Range.create(pos, pos))
-      this.emit('data', {
-        label: line,
-        filterText: this.interactive ? '' : escaped,
-        location
+  public start(cmd: string, args: string[], cwds: string[], patterns: string[]): void {
+    for (let cwd of cwds) {
+      let remain = cwds.length
+      let process = spawn(cmd, args, { cwd })
+      process.on('error', e => {
+        this.emit('error', e.message)
       })
-    })
-    rl.on('close', () => {
-      this.emit('end')
-    })
+      process.stderr.on('data', chunk => {
+        console.error(chunk.toString('utf8')) // tslint:disable-line
+      })
+      const rl = readline.createInterface(process.stdout)
+      let hasPattern = patterns.length > 0
+      rl.on('line', line => {
+        let ms: RegExpMatchArray
+        let escaped: string
+        if (line.indexOf(controlCode) !== -1) {
+          let parts = ansiparse(line)
+          escaped = parts.reduce((s, curr) => s + curr.text, '')
+          ms = escaped.match(lineRegex)
+        } else {
+          ms = line.match(lineRegex)
+          escaped = line
+        }
+        if (!ms) return
+        let file = path.join(cwd, ms[1])
+        if (hasPattern && patterns.some(p => minimatch(file, p))) return
+        let pos = Position.create(Number(ms[2]) - 1, byteSlice(ms[4], 0, Number(ms[3]) - 1).length)
+        let location = Location.create(Uri.file(file).toString(), Range.create(pos, pos))
+        this.emit('data', {
+          label: line,
+          filterText: this.interactive ? '' : escaped,
+          location
+        })
+      })
+      rl.on('close', () => {
+        remain = remain - 1
+        if (remain == 0) {
+          this.emit('end')
+        }
+      })
+    }
   }
 
   public dispose(): void {
-    if (this.process) {
-      this.process.kill()
+    for (let process of this.processes) {
+      if (!process.killed) {
+        process.kill()
+      }
     }
   }
 }
@@ -69,7 +76,11 @@ export default class GrepList extends BasicList {
   public readonly description = 'grep text by rg or ag'
   public readonly name = 'grep'
   public readonly defaultAction = 'open'
-  public readonly detail = 'Literal match is used by default.\nTo use interactive mode, add `-I` to LIST OPTIONS.\nTo change colors, checkout `man rg` or `man ag`\nGrep source provide some uniformed options to ease differences between rg and ag.\n'
+  public readonly detail = `Literal match is used by default.
+To use interactive mode, add '-I' or '--interactive' to LIST OPTIONS.
+To change colors, checkout 'man rg' or 'man ag'.
+To search from workspace folders instead of cwd, use '-folder' or '-workspace' argument.
+Grep source provide some uniformed options to ease differences between rg and ag.`
   public options = [{
     name: '-S, -smartcase',
     description: 'Use smartcase match.'
@@ -91,6 +102,12 @@ export default class GrepList extends BasicList {
   }, {
     name: '-t, -extension EXTENSION',
     description: 'Grep files with specified extension only, could be used multiple times.'
+  }, {
+    name: '-F, -folder',
+    description: 'Grep files from current workspace folder instead of cwd.'
+  }, {
+    name: '-W, -workspace',
+    description: 'Grep files from all workspace folders instead of cwd.'
   }]
 
   constructor(nvim: Neovim) {
@@ -127,18 +144,25 @@ export default class GrepList extends BasicList {
 
     let patterns = config.get<string[]>('excludePatterns', [])
     let { window } = context
-    let valid = await window.valid
-    let cwd: string
-    if (valid) {
-      cwd = await nvim.call('getcwd', window.id)
+    let cwds: string[]
+    if (args.indexOf('-F') != -1 || args.indexOf('-folder') != -1) {
+      cwds = [workspace.rootPath]
+    } else if (args.indexOf('-W') != -1 || args.indexOf('-workspace') != -1) {
+      cwds = workspace.workspaceFolders.map(f => Uri.parse(f.uri).fsPath)
     } else {
-      cwd = await nvim.call('getcwd')
+      let valid = await window.valid
+      if (valid) {
+        cwds = [await nvim.call('getcwd', window.id)]
+      } else {
+        cwds = [await nvim.call('getcwd')]
+      }
     }
     let task = new Task(interactive)
     if (cmd == 'rg' || cmd == 'ag') {
       args = convertOptions(args, cmd, useLiteral)
+      args = args.filter(s => ['-F', '-folder', '-W', '-workspace'].indexOf(s) == -1)
     }
-    task.start(cmd, args, cwd, patterns)
+    task.start(cmd, args, cwds, patterns)
     return task
   }
 }

@@ -1,7 +1,6 @@
 import { ChildProcess, spawn } from 'child_process'
-import { Uri, BasicList, ListContext, ListTask, Neovim, workspace } from 'coc.nvim'
+import { BasicList, ListContext, ListTask, Neovim, Uri, workspace } from 'coc.nvim'
 import { EventEmitter } from 'events'
-import findUp from 'find-up'
 import minimatch from 'minimatch'
 import path from 'path'
 import readline from 'readline'
@@ -9,40 +8,46 @@ import { Location, Range } from 'vscode-languageserver-protocol'
 import { executable } from './util'
 
 class Task extends EventEmitter implements ListTask {
-  private process: ChildProcess
-  constructor() {
-    super()
-  }
+  private processes: ChildProcess[] = []
 
-  public start(cmd: string, args: string[], cwd: string, patterns: string[]): void {
-    this.process = spawn(cmd, args, { cwd })
-    this.process.on('error', e => {
-      this.emit('error', e.message)
-    })
-    const rl = readline.createInterface(this.process.stdout)
-    const range = Range.create(0, 0, 0, 0)
-    let hasPattern = patterns.length > 0
-    this.process.stderr.on('data', chunk => {
-      console.error(chunk.toString('utf8')) // tslint:disable-line
-    })
-
-    rl.on('line', line => {
-      let file = path.join(cwd, line)
-      if (hasPattern && patterns.some(p => minimatch(file, p))) return
-      let location = Location.create(Uri.file(file).toString(), range)
-      this.emit('data', {
-        label: line,
-        location
+  public start(cmd: string, args: string[], cwds: string[], patterns: string[]): void {
+    let remain = cwds.length
+    for (let cwd of cwds) {
+      let process = spawn(cmd, args, { cwd })
+      this.processes.push(process)
+      process.on('error', e => {
+        this.emit('error', e.message)
       })
-    })
-    rl.on('close', () => {
-      this.emit('end')
-    })
+      const rl = readline.createInterface(process.stdout)
+      const range = Range.create(0, 0, 0, 0)
+      let hasPattern = patterns.length > 0
+      process.stderr.on('data', chunk => {
+        console.error(chunk.toString('utf8')) // tslint:disable-line
+      })
+
+      rl.on('line', line => {
+        let file = path.join(cwd, line)
+        if (hasPattern && patterns.some(p => minimatch(file, p))) return
+        let location = Location.create(Uri.file(file).toString(), range)
+        this.emit('data', {
+          label: line,
+          location
+        })
+      })
+      rl.on('close', () => {
+        remain = remain - 1
+        if (remain == 0) {
+          this.emit('end')
+        }
+      })
+    }
   }
 
   public dispose(): void {
-    if (this.process) {
-      this.process.kill()
+    for (let process of this.processes) {
+      if (!process.killed) {
+        process.kill()
+      }
     }
   }
 }
@@ -50,27 +55,30 @@ class Task extends EventEmitter implements ListTask {
 export default class FilesList extends BasicList {
   public readonly name = 'files'
   public readonly defaultAction = 'open'
-  public description = 'search file from cwd'
-  private excludePatterns: string[]
+  public description = 'Search files by rg or ag'
+  public readonly detail = `Install ripgrep in your $PATH to have best experience.
+Files is searched from current cwd by default.
+Use 'list.source.files.command' configuration for custom search command.
+Use 'list.source.files.args' configuration for custom command arguments.
+Note that rg ignore hidden files by default.`
+  public options = [{
+    name: '-F, -folder',
+    description: 'Search files from current workspace folder instead of cwd.'
+  }, {
+    name: '-W, -workspace',
+    description: 'Search files from all workspace folders instead of cwd.'
+  }]
 
   constructor(nvim: Neovim) {
     super(nvim)
     this.addLocationActions()
-    let config = workspace.getConfiguration('list.source.files')
-    this.excludePatterns = config.get<string[]>('excludePatterns', [])
-    workspace.onDidChangeConfiguration(e => {
-      if (e.affectsConfiguration('list.source.files')) {
-        let config = workspace.getConfiguration('list.source.files')
-        this.excludePatterns = config.get<string[]>('excludePatterns', [])
-      }
-    })
   }
 
   private getArgs(args: string[], defaultArgs: string[]): string[] {
     return args.length ? args : defaultArgs
   }
 
-  public getCommand(cwd: string): { cmd: string, args: string[] } {
+  public getCommand(): { cmd: string, args: string[] } {
     let config = workspace.getConfiguration('list.source.files')
     let cmd = config.get<string>('command', '')
     let args = config.get<string[]>('args', [])
@@ -79,8 +87,6 @@ export default class FilesList extends BasicList {
         return { cmd: 'rg', args: this.getArgs(args, ['--color', 'never', '--files']) }
       } else if (executable('ag')) {
         return { cmd: 'ag', args: this.getArgs(args, ['-f', '-g', '.', '--nocolor']) }
-      } else if (executable('git') && findUp.sync('.git', { cwd })) {
-        return { cmd: 'git', args: this.getArgs(args, ['ls-files']) }
       } else if (process.platform == 'win32') {
         return { cmd: 'dir', args: this.getArgs(args, ['/a-D', '/S', '/B']) }
       } else if (executable('find')) {
@@ -96,18 +102,26 @@ export default class FilesList extends BasicList {
 
   public async loadItems(context: ListContext): Promise<ListTask> {
     let { nvim } = this
-    let { window } = context
-    let valid = await window.valid
-    let cwd: string
-    if (valid) {
-      cwd = await nvim.call('getcwd', window.id)
+    let { window, args } = context
+    let options = this.parseArguments(args)
+    let cwds: string[]
+    if (options.folder) {
+      cwds = [workspace.rootPath]
+    } else if (options.workspace) {
+      cwds = workspace.workspaceFolders.map(f => Uri.parse(f.uri).fsPath)
     } else {
-      cwd = await nvim.call('getcwd')
+      let valid = await window.valid
+      if (valid) {
+        cwds = [await nvim.call('getcwd', window.id)]
+      } else {
+        cwds = [await nvim.call('getcwd')]
+      }
     }
-    let res = this.getCommand(cwd)
+    let res = this.getCommand()
     if (!res) return null
     let task = new Task()
-    task.start(res.cmd, res.args, cwd, this.excludePatterns)
+    let excludePatterns = this.getConfig().get<string[]>('excludePatterns', [])
+    task.start(res.cmd, res.args, cwds, excludePatterns)
     return task
   }
 }
