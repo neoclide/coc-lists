@@ -1,4 +1,4 @@
-import { IList, ListAction, BasicList, ListContext, ListItem, Neovim, workspace, Uri } from 'coc.nvim'
+import { BasicList, ListAction, ListContext, ListItem, Neovim, Uri } from 'coc.nvim'
 import path from 'path'
 
 export default class Colors extends BasicList {

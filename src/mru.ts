@@ -1,10 +1,10 @@
-import { BasicList, events, Mru, commands, Document, ListContext, ListItem, Neovim, workspace, WorkspaceConfiguration } from 'coc.nvim'
+import { BasicList, commands, Document, events, ListContext, ListItem, Mru, Neovim, workspace } from 'coc.nvim'
 import fs from 'fs'
 import minimatch from 'minimatch'
 import path from 'path'
 import { Location, Range } from 'vscode-languageserver-protocol'
 import Uri from 'vscode-uri'
-import { wait, isParentFolder } from './util'
+import { isParentFolder, wait } from './util'
 
 export default class MruList extends BasicList {
   public readonly name = 'mru'

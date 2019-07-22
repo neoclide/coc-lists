@@ -1,11 +1,10 @@
-import { Uri, BasicList, events, Mru, commands, Document, ListContext, ListItem, Neovim, workspace, WorkspaceConfiguration } from 'coc.nvim'
+import { BasicList, commands, ListContext, ListItem, Mru, Neovim, Uri, workspace } from 'coc.nvim'
 import fs from 'fs'
+import mkdirp from 'mkdirp'
 import os from 'os'
-import minimatch from 'minimatch'
 import path from 'path'
-import { Location, Range } from 'vscode-languageserver-protocol'
-import { wait, isParentFolder } from './util'
 import { promisify } from 'util'
+import { Location, Range } from 'vscode-languageserver-protocol'
 
 export default class SessionList extends BasicList {
   public readonly name = 'sessions'
@@ -25,7 +24,7 @@ export default class SessionList extends BasicList {
       await promisify(fs.unlink)(filepath)
     }, { reload: true, persist: true })
 
-    this.addAction('load', async (item, context) => {
+    this.addAction('load', async (item, _context) => {
       let filepath = item.data.filepath
       await this.loadSession(filepath)
     })
@@ -139,12 +138,12 @@ export default class SessionList extends BasicList {
     }
     if (!directory) directory = path.join(os.homedir(), '.vim/sessions')
     if (!fs.existsSync(directory)) {
-      await promisify(fs.mkdir)(directory, { recursive: true })
+      mkdirp.sync(directory)
     }
     return directory
   }
 
-  public async loadItems(context: ListContext): Promise<ListItem[]> {
+  public async loadItems(_context: ListContext): Promise<ListItem[]> {
     let folder = await this.getSessionFolder()
     let files = await promisify(fs.readdir)(folder, { encoding: 'utf8' })
     files = files.filter(p => p.endsWith('.vim'))

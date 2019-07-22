@@ -1,4 +1,4 @@
-import { BasicList, workspace, ListContext, ListItem, Neovim, Window } from 'coc.nvim'
+import { BasicList, ListContext, ListItem, Neovim } from 'coc.nvim'
 import colors from 'colors/safe'
 const regex = /^\s(\s*\d+)(.+?)"(.+?)".*/
 
