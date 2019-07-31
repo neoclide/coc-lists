@@ -1,6 +1,6 @@
 import { BasicList, ListContext, ListItem, Neovim } from 'coc.nvim'
 import colors from 'colors/safe'
-const regex = /^\s(\s*\d+)(.+?)"(.+?)".*/
+const regex = /^\s*(\d+)(.+?)"(.+?)".*/
 
 export default class BufferList extends BasicList {
   public readonly name = 'buffers'
@@ -79,7 +79,7 @@ export default class BufferList extends BasicList {
       const ms = line.match(regex)
       if (!ms) return res
 
-      const bufnr = Number(ms[1].trim())
+      const bufnr = Number(ms[1])
       const item: ListItem = {
         label: ` ${colors.magenta(ms[1])}${colors.america(ms[2])}${ms[3]}`,
         filterText: ms[3],
