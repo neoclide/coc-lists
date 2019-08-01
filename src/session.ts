@@ -34,7 +34,7 @@ export default class SessionList extends BasicList {
         name = await nvim.getVvar('this_session') as string
         if (!name) {
           let defaultValue = path.basename(workspace.rootPath)
-          name = await workspace.requestInput('session name:', defaultValue)
+          name = await workspace.requestInput('session name', defaultValue)
           if (!name) return
         }
       }
@@ -163,13 +163,12 @@ export default class SessionList extends BasicList {
     })
     files = arr.map(o => o.filepath)
     return files.map(filepath => {
-      filepath = filepath.replace(os.homedir(), '~')
       let uri = Uri.file(filepath).toString()
       let location = Location.create(uri, range)
       let name = path.basename(filepath, '.vim')
       let active = curr && curr == filepath
       return {
-        label: `${active ? '*' : ' '} ${name}\t${uri}`,
+        label: `${active ? '*' : ' '} ${name}\t${filepath}`,
         data: { filepath },
         location
       }
