@@ -121,7 +121,9 @@ Note that rg ignore hidden files by default.`
     if (!res) return null
     let task = new Task()
     let excludePatterns = this.getConfig().get<string[]>('excludePatterns', [])
-    task.start(res.cmd, res.args, cwds, excludePatterns)
+    let used = res.args.concat(['-F', '-folder', '-W', '-workspace'])
+    let extraArgs = args.filter(s => used.indexOf(s) == -1)
+    task.start(res.cmd, res.args.concat(extraArgs), cwds, excludePatterns)
     return task
   }
 }
