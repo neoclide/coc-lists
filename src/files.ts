@@ -78,7 +78,7 @@ Note that rg ignore hidden files by default.`
     return args.length ? args : defaultArgs
   }
 
-  public getCommand(): { cmd: string, args: string[] } {
+  public getCommand(): { cmd: string; args: string[] } {
     let config = workspace.getConfiguration('list.source.files')
     let cmd = config.get<string>('command', '')
     let args = config.get<string[]>('args', [])
@@ -104,6 +104,15 @@ Note that rg ignore hidden files by default.`
     let { nvim } = this
     let { window, args } = context
     let options = this.parseArguments(args)
+    const defautArgs: string[] = []
+    this.options.map(o => {
+      o.name.split(',').forEach(e => {
+        defautArgs.push(e.trim())
+      })
+    })
+    const extraArgs = args.filter(e => {
+      return defautArgs.indexOf(e) < 0
+    })
     let cwds: string[]
     if (options.folder) {
       cwds = [workspace.rootPath]
@@ -121,7 +130,7 @@ Note that rg ignore hidden files by default.`
     if (!res) return null
     let task = new Task()
     let excludePatterns = this.getConfig().get<string[]>('excludePatterns', [])
-    task.start(res.cmd, res.args, cwds, excludePatterns)
+    task.start(res.cmd, res.args.concat(extraArgs), cwds, excludePatterns)
     return task
   }
 }
