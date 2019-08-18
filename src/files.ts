@@ -1,6 +1,7 @@
 import { ChildProcess, spawn } from 'child_process'
 import { BasicList, ListContext, ListTask, Neovim, Uri, workspace } from 'coc.nvim'
 import { EventEmitter } from 'events'
+import fs from 'fs'
 import minimatch from 'minimatch'
 import path from 'path'
 import readline from 'readline'
@@ -26,7 +27,10 @@ class Task extends EventEmitter implements ListTask {
       })
 
       rl.on('line', line => {
-        let file = path.join(cwd, line)
+        let file = line
+        if (file.indexOf(cwd) < 0) {
+          file = path.join(cwd, line)
+        }
         if (hasPattern && patterns.some(p => minimatch(file, p))) return
         let location = Location.create(Uri.file(file).toString(), range)
         this.emit('data', {
@@ -58,6 +62,7 @@ export default class FilesList extends BasicList {
   public description = 'Search files by rg or ag'
   public readonly detail = `Install ripgrep in your $PATH to have best experience.
 Files is searched from current cwd by default.
+Provide directory names as arguments to search other directories.
 Use 'list.source.files.command' configuration for custom search command.
 Use 'list.source.files.args' configuration for custom command arguments.
 Note that rg ignore hidden files by default.`
@@ -104,25 +109,33 @@ Note that rg ignore hidden files by default.`
     let { nvim } = this
     let { window, args } = context
     let options = this.parseArguments(args)
+    let res = this.getCommand()
+    if (!res) return null
+    let used = res.args.concat(['-F', '-folder', '-W', '-workspace'])
+    let extraArgs = args.filter(s => used.indexOf(s) == -1)
     let cwds: string[]
     if (options.folder) {
       cwds = [workspace.rootPath]
     } else if (options.workspace) {
       cwds = workspace.workspaceFolders.map(f => Uri.parse(f.uri).fsPath)
     } else {
-      let valid = await window.valid
-      if (valid) {
-        cwds = [await nvim.call('getcwd', window.id)]
-      } else {
-        cwds = [await nvim.call('getcwd')]
+      let dirArgs = []
+      if (extraArgs.length > 0) {
+        dirArgs = extraArgs.filter(d => { try { return fs.lstatSync(d).isDirectory() } catch(e) { return false }})
+      }
+      if (dirArgs.length > 0) {
+        cwds = dirArgs
+      } else { 
+        let valid = await window.valid
+        if (valid) {
+          cwds = [await nvim.call('getcwd', window.id)]
+        } else {
+          cwds = [await nvim.call('getcwd')]
+        }
       }
     }
-    let res = this.getCommand()
-    if (!res) return null
     let task = new Task()
     let excludePatterns = this.getConfig().get<string[]>('excludePatterns', [])
-    let used = res.args.concat(['-F', '-folder', '-W', '-workspace'])
-    let extraArgs = args.filter(s => used.indexOf(s) == -1)
     task.start(res.cmd, res.args.concat(extraArgs), cwds, excludePatterns)
     return task
   }
