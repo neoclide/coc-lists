@@ -114,14 +114,26 @@ Note that rg ignore hidden files by default.`
     let used = res.args.concat(['-F', '-folder', '-W', '-workspace'])
     let extraArgs = args.filter(s => used.indexOf(s) == -1)
     let cwds: string[]
+    let dirArgs = []
+    let searchArgs = []
     if (options.folder) {
       cwds = [workspace.rootPath]
     } else if (options.workspace) {
       cwds = workspace.workspaceFolders.map(f => Uri.parse(f.uri).fsPath)
     } else {
-      let dirArgs = []
       if (extraArgs.length > 0) {
-        dirArgs = extraArgs.filter(d => { try { return fs.lstatSync(d).isDirectory() } catch(e) { return false }})
+        for(let i=0; i < extraArgs.length; i++) {
+          let d = await nvim.call('expand', extraArgs[i])
+          try {
+            if (fs.lstatSync(d).isDirectory()) {
+              dirArgs.push(d)
+            } else {
+              searchArgs.push(d)
+            }
+          } catch(e) {
+            searchArgs.push(d)
+          }
+        }
       }
       if (dirArgs.length > 0) {
         cwds = dirArgs
@@ -136,7 +148,7 @@ Note that rg ignore hidden files by default.`
     }
     let task = new Task()
     let excludePatterns = this.getConfig().get<string[]>('excludePatterns', [])
-    task.start(res.cmd, res.args.concat(extraArgs), cwds, excludePatterns)
+    task.start(res.cmd, res.args.concat(searchArgs), cwds, excludePatterns)
     return task
   }
 }
