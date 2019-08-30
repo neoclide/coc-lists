@@ -22,10 +22,21 @@ export default class MruList extends BasicList {
     super(nvim)
     this.mru = workspace.createMru('mru')
     this.addLocationActions()
-    this.addAction('delete', async (item, _context) => {
-      let filepath = Uri.parse(item.data.uri).fsPath
-      await this.mru.remove(filepath)
-    }, { reload: true, persist: true })
+    this.addAction(
+      'delete',
+      async (item, _context) => {
+        let filepath = Uri.parse(item.data.uri).fsPath
+        await this.mru.remove(filepath)
+      },
+      { reload: true, persist: true }
+    )
+    this.addAction(
+      'clean',
+      async () => {
+        await this.mru.clean()
+      },
+      { reload: true, persist: true }
+    )
 
     this.disposables.push(commands.registerCommand('mru.validate', async () => {
       let files = await this.mru.load()
