@@ -4,25 +4,25 @@ Some basic list sources for [coc.nvim](https://github.com/neoclide/coc.nvim/)
 
 Including:
 
+- [x] `buffers` current buffer list.
+- [x] `cmdhistory` history of commands.
+- [x] `colors` colors schemes.
 - [x] `files` search files from current cwd.
-- [x] `mru` most recent used files.
+- [x] `filetypes` file types.
 - [x] `grep` grep text from current cwd.
-- [x] `words` search word in current buffer.
+- [x] `helptags` helptags of vim.
 - [x] `lines` search lines by regex patterns.
 - [x] `locationlist` items from vim's location list.
-- [x] `quickfix` items from vim's quickfix list.
-- [x] `buffers` current buffer list.
-- [x] `helptags` helptags of vim.
-- [x] `tags` search tag files.
-- [x] `filetypes` file types.
-- [x] `colors` colors schemes.
-- [x] `marks` marks of vim.
-- [x] `windows` windows of vim.
-- [x] `vimcommands` available vim commands.
 - [x] `maps` key mappings.
-- [x] `cmdhistory` history of commands.
+- [x] `marks` marks of vim.
+- [x] `mru` most recent used files.
+- [x] `quickfix` items from vim's quickfix list.
 - [x] `searchhistory` history of search.
 - [x] `sessions` session list.
+- [x] `tags` search tag files.
+- [x] `vimcommands` available vim commands.
+- [x] `windows` windows of vim.
+- [x] `words` search word in current buffer.
 
 For snippets list, use [coc-snippets](https://github.com/neoclide/coc-snippets).
 
