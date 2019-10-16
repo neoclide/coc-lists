@@ -44,7 +44,7 @@ export default class Maps implements IList {
         let [, mode, key, more] = ms
         res.push({
           label: ` ${colors.magenta(mode)}\t${colors.blue(key)}\t${more}`,
-          filterText: key,
+          filterText: `${key} ${more}`,
           data: {
             mode,
             key,
