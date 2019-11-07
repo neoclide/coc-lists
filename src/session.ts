@@ -136,7 +136,10 @@ export default class SessionList extends BasicList {
     if (directory && /^~/.test(directory)) {
       directory = directory.replace(/^~/, os.homedir())
     }
-    if (!directory) directory = path.join(os.homedir(), '.vim/sessions')
+    if (!directory) {
+      const folder = process.platform === 'win32' ? 'vimfiles/sessions' : '.vim/sessions'
+      directory = path.join(os.homedir(), folder)
+    }
     if (!fs.existsSync(directory)) {
       mkdirp.sync(directory)
     }
