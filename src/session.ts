@@ -133,15 +133,29 @@ export default class SessionList extends BasicList {
   private async getSessionFolder(): Promise<string> {
     let config = workspace.getConfiguration('session')
     let directory = config.get<string>('directory', '')
-    if (directory && /^~/.test(directory)) {
-      directory = directory.replace(/^~/, os.homedir())
-    }
+    directory = directory.replace(/^~/, os.homedir())
+    const isWin = process.platform === 'win32'
     if (!directory) {
-      const folder = process.platform === 'win32' ? 'vimfiles/sessions' : '.vim/sessions'
+      const folder = isWin ? 'vimfiles/sessions' : '.vim/sessions'
       directory = path.join(os.homedir(), folder)
     }
     if (!fs.existsSync(directory)) {
       mkdirp.sync(directory)
+      if (isWin) {
+        let folder = path.join(os.homedir(), '.vim/sessions')
+        if (fs.existsSync(folder)) {
+          let stat = fs.lstatSync(folder)
+          if (stat && stat.isDirectory()) {
+            let files = fs.readdirSync(folder)
+            for (let file of files) {
+              if (file.endsWith('.vim')) {
+                let dest = path.join(os.homedir(), 'vimfiles/sessions', file)
+                fs.copyFileSync(path.join(folder, file), dest)
+              }
+            }
+          }
+        }
+      }
     }
     return directory
   }
