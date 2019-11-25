@@ -124,7 +124,8 @@ Grep source provide some uniformed options to ease differences between rg and ag
     let args = config.get<string[]>('args', []).slice()
     let useLiteral = config.get<boolean>('useLiteral', true)
     if (cmd == 'rg') {
-      args.push('--color', 'always', '--vimgrep', '--colors', 'path:fg:white')
+      let maxColumns = config.get<number>('maxColumns', 160)
+      args.push('--color', 'always', '--max-columns', maxColumns.toString(), '--vimgrep', '--colors', 'path:fg:white')
     } else if (cmd == 'ag') {
       args.push('--color', '--vimgrep')
     }
