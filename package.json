@@ -108,7 +108,7 @@
         },
         "list.source.grep.maxColumns": {
           "type": "number",
-          "default": 160,
+          "default": 300,
           "description": "Don't print lines longer than this limit in bytes, ripgrep only."
         },
         "list.source.tags.command": {
