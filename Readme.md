@@ -78,7 +78,7 @@ A: You have to pass `--hidden` to `ripgrep` by using configuration:
 
     `list.source.files.args`: ['--hidden', '--files']
 
-Q: How to ignore files using files source.
+Q: How to ignore files using files/grep source.
 
 A: You can add `.ignore` file in your project root, which would be respected by
 `ripgrep` or use `list.sourcefiles.excludePatterns` configuration.
