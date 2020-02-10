@@ -61,9 +61,9 @@ export default class BufferList extends BasicList {
       let winid = context.listWindow.id
       nvim.pauseNotification()
       nvim.command('pclose', true)
-      nvim.call('coc#util#open_file', [`${mod} ${height}sp +${info.lnum}`, bufname], true)
-      let cmd = 'setl previewwindow winfixheight'
-      nvim.command(cmd, true)
+      nvim.call('coc#util#open_file', [`${mod} ${height}sp +setl\\ previewwindow`, bufname], true)
+      nvim.command('setl winfixheight', true)
+      nvim.command(`exe ${info.lnum}`, true)
       nvim.command('normal! zt', true)
       nvim.call('win_gotoid', [winid], true)
       await nvim.resumeNotification()
