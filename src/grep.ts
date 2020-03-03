@@ -102,7 +102,8 @@ Grep source provide some uniformed options to ease differences between rg and ag
     description: 'Don\'t respect version control ignore files(.gitignore, etc.)'
   }, {
     name: '-t, -extension EXTENSION',
-    description: 'Grep files with specified extension only, could be used multiple times.'
+    description: 'Grep files with specified extension only, could be used multiple times.',
+    hasValue: true
   }, {
     name: '-F, -folder',
     description: 'Grep files from current workspace folder instead of cwd.'
