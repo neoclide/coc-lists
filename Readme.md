@@ -133,6 +133,22 @@ A: Create kep-mapping like:
 nnoremap <silent> <space>w  :exe 'CocList -I --normal --input='.expand('<cword>').' words'<CR>
 ```
 
+Q: How to search strings contains spaces within current working directory?
+
+A: One way to do it is:
+
+```vim
+function! s:GrepLiteral()
+  let text = input('search: ')
+  let text = escape(text, ' ')
+  if empty(text) 
+    return
+  endif
+  execute 'CocList grep -S '.text
+endfunction
+nmap <leader>gg :<C-u>call <SID>GrepLiteral()<CR>
+```
+
 ## License
 
 MIT
