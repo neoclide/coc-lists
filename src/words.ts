@@ -40,13 +40,17 @@ export default class Words extends BasicList {
     let regex = new RegExp(source, flags)
     for (let line of content.split('\n')) {
       let idx = line.indexOf(input)
+      if (context.options.ignorecase) {
+        idx = line.toLowerCase().indexOf(input.toLowerCase());
+      }
       if (idx != -1) {
         if (wordMatch && !regex.test(line)) {
           continue
         }
         let range = Range.create(lnum - 1, idx, lnum - 1, idx + input.length)
         let pre = `${colors.magenta(lnum.toString())}${pad(lnum.toString(), total)}`
-        let text = line.replace(regex, colors.red(input))
+        const matchedString = line.substr(idx, input.length);
+        let text = line.replace(regex, safe_1.default.red(matchedString));
         result.push({
           label: `${pre} ${text}`,
           location: Location.create(doc.uri, range),
