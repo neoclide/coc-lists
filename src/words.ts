@@ -34,23 +34,19 @@ export default class Words extends BasicList {
     let result: ListItem[] = []
     let lnum = 1
     let total = doc.lineCount.toString().length
-    let flags = context.options.ignorecase ? 'igu' : 'gu'
+    let flags = context.options.ignorecase ? 'iu' : 'u'
     let source = input.replace(matchOperatorsRe, '\\$&')
     if (wordMatch) source = `\\b${source}\\b`
     let regex = new RegExp(source, flags)
+    let replaceRegex = new RegExp(source, flags + 'g')
     for (let line of content.split('\n')) {
-      let idx = line.indexOf(input)
-      if (context.options.ignorecase) {
-        idx = line.toLowerCase().indexOf(input.toLowerCase());
-      }
-      if (idx != -1) {
-        if (wordMatch && !regex.test(line)) {
-          continue
-        }
-        let range = Range.create(lnum - 1, idx, lnum - 1, idx + input.length)
+      let ms = line.match(regex)
+      if (ms) {
+        let range = Range.create(lnum - 1, ms.index, lnum - 1, ms.index + input.length)
         let pre = `${colors.magenta(lnum.toString())}${pad(lnum.toString(), total)}`
-        const matchedString = line.substr(idx, input.length);
-        let text = line.replace(regex, safe_1.default.red(matchedString));
+        let text = line.replace(replaceRegex, match => {
+          return colors.red(match)
+        })
         result.push({
           label: `${pre} ${text}`,
           location: Location.create(doc.uri, range),
