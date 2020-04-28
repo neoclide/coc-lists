@@ -6,7 +6,7 @@ import os from 'os'
 import path from 'path'
 import readline from 'readline'
 import { Location, Position, Range } from 'vscode-languageserver-protocol'
-import Uri from 'vscode-uri'
+import { URI } from 'vscode-uri'
 import { executable } from './util'
 import { ansiparse } from './util/ansiparse'
 import { convertOptions } from './util/option'
@@ -47,7 +47,7 @@ class Task extends EventEmitter implements ListTask {
         let file = path.join(cwd, ms[1])
         if (hasPattern && patterns.some(p => minimatch(file, p))) return
         let pos = Position.create(Number(ms[2]) - 1, byteSlice(ms[4], 0, Number(ms[3]) - 1).length)
-        let location = Location.create(Uri.file(file).toString(), Range.create(pos, pos))
+        let location = Location.create(URI.file(file).toString(), Range.create(pos, pos))
         this.emit('data', {
           label: line,
           filterText: this.interactive ? '' : escaped,
@@ -151,7 +151,7 @@ Grep source provide some uniformed options to ease differences between rg and ag
     if (args.indexOf('-F') != -1 || args.indexOf('-folder') != -1) {
       cwds = [workspace.rootPath]
     } else if (args.indexOf('-W') != -1 || args.indexOf('-workspace') != -1) {
-      cwds = workspace.workspaceFolders.map(f => Uri.parse(f.uri).fsPath)
+      cwds = workspace.workspaceFolders.map(f => URI.parse(f.uri).fsPath)
     } else {
       let valid = await window.valid
       if (valid) {

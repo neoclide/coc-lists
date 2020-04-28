@@ -122,7 +122,8 @@ Note that rg ignore hidden files by default.`
       cwds = workspace.workspaceFolders.map(f => Uri.parse(f.uri).fsPath)
     } else {
       if (extraArgs.length > 0) {
-        for(let i=0; i < extraArgs.length; i++) {
+        // tslint:disable-next-line: prefer-for-of
+        for (let i = 0; i < extraArgs.length; i++) {
           let d = await nvim.call('expand', extraArgs[i])
           try {
             if (fs.lstatSync(d).isDirectory()) {
@@ -130,14 +131,14 @@ Note that rg ignore hidden files by default.`
             } else {
               searchArgs.push(d)
             }
-          } catch(e) {
+          } catch (e) {
             searchArgs.push(d)
           }
         }
       }
       if (dirArgs.length > 0) {
         cwds = dirArgs
-      } else { 
+      } else {
         let valid = await window.valid
         if (valid) {
           cwds = [await nvim.call('getcwd', window.id)]

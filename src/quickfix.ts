@@ -1,6 +1,6 @@
 import { BasicList, ListContext, ListItem, Neovim, workspace } from 'coc.nvim'
 import { Location, Position, Range } from 'vscode-languageserver-protocol'
-import Uri from 'vscode-uri'
+import {URI} from 'vscode-uri'
 import { characterIndex } from './util'
 
 export default class QuickfixList extends BasicList {
@@ -36,7 +36,7 @@ export default class QuickfixList extends BasicList {
       }
       let bufname = await nvim.call('bufname', bufnr)
       let fullpath = await nvim.call('fnamemodify', [bufname, ':p'])
-      let uri = Uri.file(fullpath).toString()
+      let uri = URI.file(fullpath).toString()
       let line = await workspace.getLine(uri, lnum - 1)
       let pos = Position.create(lnum - 1, characterIndex(line, col - 1))
       res.push({

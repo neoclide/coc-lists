@@ -3,7 +3,7 @@ import fs from 'fs'
 import minimatch from 'minimatch'
 import path from 'path'
 import { Location, Range } from 'vscode-languageserver-protocol'
-import Uri from 'vscode-uri'
+import { URI } from 'vscode-uri'
 import { isParentFolder, wait } from './util'
 
 export default class MruList extends BasicList {
@@ -25,7 +25,7 @@ export default class MruList extends BasicList {
     this.addAction(
       'delete',
       async (item, _context) => {
-        let filepath = Uri.parse(item.data.uri).fsPath
+        let filepath = URI.parse(item.data.uri).fsPath
         await this.mru.remove(filepath)
       },
       { reload: true, persist: true }
@@ -72,7 +72,7 @@ export default class MruList extends BasicList {
   }
 
   private async _addRecentFile(doc: Document): Promise<void> {
-    let uri = Uri.parse(doc.uri)
+    let uri = URI.parse(doc.uri)
     if (uri.scheme !== 'file' || doc.buftype != '') return
     if (doc.filetype == 'netrw') return
     if (doc.uri.indexOf('NERD_tree') !== -1) return
@@ -95,7 +95,7 @@ export default class MruList extends BasicList {
     const range = Range.create(0, 0, 0, 0)
     if (!findAll) files = files.filter(file => isParentFolder(cwd, file))
     return files.map(file => {
-      let uri = Uri.file(file).toString()
+      let uri = URI.file(file).toString()
       let location = Location.create(uri.toString(), range)
       return {
         label: findAll ? file : path.relative(cwd, file),

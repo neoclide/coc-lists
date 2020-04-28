@@ -1,6 +1,6 @@
 import { BasicList, ListContext, ListItem, Neovim, workspace } from 'coc.nvim'
 import { Location, Position, Range } from 'vscode-languageserver-protocol'
-import Uri from 'vscode-uri'
+import { URI } from 'vscode-uri'
 import fs from 'fs'
 import path from 'path'
 import { isParentFolder } from './util'
@@ -34,7 +34,7 @@ export default class Helptags extends BasicList {
             if (line) {
               let [name, filepath, regex] = line.split('\t')
               let fullpath = path.join(folder, 'doc', filepath)
-              let uri = Uri.file(fullpath).toString()
+              let uri = URI.file(fullpath).toString()
               let file = isParentFolder(cwd, fullpath) ? path.relative(cwd, fullpath) : fullpath
               result.push({
                 label: `${name}\t${file}`,
