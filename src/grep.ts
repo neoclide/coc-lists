@@ -122,7 +122,7 @@ Grep source provide some uniformed options to ease differences between rg and ag
     let { interactive } = context.options
     let config = workspace.getConfiguration('list.source.grep')
     let cmd = config.get<string>('command', 'rg')
-    let args = config.get<string[]>('args', []).slice()
+    let args: string[] = []
     let useLiteral = config.get<boolean>('useLiteral', true)
     if (cmd == 'rg') {
       let maxColumns = config.get<number>('maxColumns', 300)
@@ -130,6 +130,7 @@ Grep source provide some uniformed options to ease differences between rg and ag
     } else if (cmd == 'ag') {
       args.push('--color', '--vimgrep')
     }
+    args.push(...config.get<string[]>('args', []).slice())
     if (!executable(cmd)) throw new Error(`Command '${cmd}' not found on $PATH`)
     if (interactive && !context.input) return []
     args.push(...context.args)
