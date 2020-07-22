@@ -49,7 +49,7 @@ class Task extends EventEmitter implements ListTask {
         let pos = Position.create(Number(ms[2]) - 1, byteSlice(ms[4], 0, Number(ms[3]) - 1).length)
         let location = Location.create(URI.file(file).toString(), Range.create(pos, pos))
         this.emit('data', {
-          label: line,
+          label: `${ms[1]}` + line.slice(line.indexOf(':')),
           filterText: this.interactive ? '' : escaped,
           location
         })
