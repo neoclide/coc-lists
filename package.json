@@ -118,7 +118,10 @@
         },
         "list.source.grep.args": {
           "type": "array",
-          "default": [],
+          "default": [
+            "--colors",
+            "path:fg:white"
+          ],
           "description": "Arguments for grep command, always used for grep",
           "items": {
             "type": "string"
