@@ -28,7 +28,9 @@ class Task extends EventEmitter implements ListTask {
         this.emit('error', e.message)
       })
       process.stderr.on('data', chunk => {
-        console.error(chunk.toString('utf8')) // tslint:disable-line
+        let parts = ansiparse(chunk.toString('utf8'))
+        let escaped = parts.reduce((s, curr) => s + curr.text, '')
+        console.error(escaped) // tslint:disable-line
       })
       const rl = readline.createInterface(process.stdout)
       let hasPattern = patterns.length > 0
