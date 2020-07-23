@@ -1,6 +1,6 @@
 {
   "name": "coc-lists",
-  "version": "1.3.9",
+  "version": "1.3.10",
   "description": "Basic list sources for coc.nvim",
   "main": "lib/index.js",
   "publisher": "chemzqm",
@@ -118,10 +118,7 @@
         },
         "list.source.grep.args": {
           "type": "array",
-          "default": [
-            "--colors",
-            "path:fg:white"
-          ],
+          "default": [],
           "description": "Arguments for grep command, always used for grep",
           "items": {
             "type": "string"
