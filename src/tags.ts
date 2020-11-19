@@ -1,10 +1,64 @@
-import { BasicList, workspace, ListContext, commands, ListItem, Neovim } from 'coc.nvim'
-import readline from 'readline'
-import { Location, Position, Range } from 'vscode-languageserver-protocol'
-import { URI } from 'vscode-uri'
-import fs from 'fs'
+import { BasicList, commands, ListContext, ListTask, Neovim, workspace } from 'coc.nvim'
+import colors from 'colors/safe'
+import { EventEmitter } from 'events'
+import fs, { ReadStream } from 'fs'
 import path from 'path'
+import readline from 'readline'
+import { URI } from 'vscode-uri'
 import { isParentFolder } from './util'
+
+class FileTask extends EventEmitter implements ListTask {
+  private streams: ReadStream[] = []
+  constructor() {
+    super()
+  }
+
+  public start(files: string[], cwd: string): void {
+    let count = files.length
+    for (let file of files) {
+      let filepath = path.isAbsolute(file) ? file : path.join(cwd, file)
+      let stream = fs.createReadStream(path.join(cwd, file), { encoding: 'utf8' })
+      this.streams.push(stream)
+      const rl = readline.createInterface({
+        input: stream
+      })
+      let dirname = path.dirname(filepath)
+      rl.on('line', line => {
+        if (line.startsWith('!')) return
+        let [name, file, pattern] = line.split('\t')
+        if (!pattern) return
+        let fullpath = path.join(dirname, file)
+        let uri = URI.file(fullpath).toString()
+        let relativeFile = isParentFolder(cwd, fullpath) ? path.relative(cwd, fullpath) : fullpath
+        this.emit('data', {
+          label: `${colors.blue(name)} ${colors.grey(relativeFile)}`,
+          filterText: name,
+          location: {
+            uri,
+            line: pattern.replace(/^\/\^/, '').replace(/\$\/;?"?$/, ''),
+            text: name
+          }
+        })
+      })
+      rl.on('error', e => {
+        count = count - 1
+        this.emit('error', e.message)
+      })
+      rl.on('close', () => {
+        count = count - 1
+        if (count == 0) {
+          this.emit('end')
+        }
+      })
+    }
+  }
+
+  public dispose(): void {
+    for (let stream of this.streams) {
+      stream.close()
+    }
+  }
+}
 
 export default class Helptags extends BasicList {
   public readonly name = 'tags'
@@ -23,59 +77,15 @@ export default class Helptags extends BasicList {
     }))
   }
 
-  public async loadItems(_context: ListContext): Promise<ListItem[]> {
+  public async loadItems(_context: ListContext): Promise<ListTask> {
     let { nvim } = this
     let cwd = await nvim.call('getcwd') as string
     let tagfiles = await nvim.call('tagfiles') as string[]
     if (!tagfiles || tagfiles.length == 0) {
       throw new Error('no tag files found, use ":CocCommand tags.generate" to generate tagfile.')
     }
-    let result: ListItem[] = []
-    await Promise.all(tagfiles.map(file => {
-      return new Promise<void>(resolve => {
-        let filepath = path.isAbsolute(file) ? file : path.join(cwd, file)
-        let dirname = path.dirname(filepath)
-        const rl = readline.createInterface({
-          input: fs.createReadStream(filepath, { encoding: 'utf8' }),
-        })
-        rl.on('line', line => {
-          if (line.startsWith('!')) return
-          let [name, file, pattern] = line.split('\t')
-          if (!pattern) return
-          let fullpath = path.join(dirname, file)
-          let uri = URI.file(fullpath).toString()
-          let relativeFile = isParentFolder(cwd, fullpath) ? path.relative(cwd, fullpath) : fullpath
-          result.push({
-            label: `${name}\t${relativeFile}`,
-            filterText: name,
-            location: {
-              uri,
-              line: pattern.replace(/^\/\^/, '').replace(/\$\/;?"?$/, ''),
-              text: name
-            }
-          })
-        })
-        rl.on('error', e => {
-          nvim.errWrite(`Read file ${file} error: ${e.message}`)
-          resolve()
-        })
-        rl.on('close', () => {
-          resolve()
-        })
-      })
-    }))
-    return result
-  }
-
-  public doHighlight(): void {
-    let { nvim } = this
-    nvim.pauseNotification()
-    nvim.command('syntax match CocTagsName /\\v^[^\\t]+/ contained containedin=CocTagsLine', true)
-    nvim.command('syntax match CocTagsFile /\\t.*$/ contained containedin=CocTagsLine', true)
-    nvim.command('highlight default link CocTagsName Identifier', true)
-    nvim.command('highlight default link CocTagsFile Comment', true)
-    nvim.resumeNotification(false, true).catch(_e => {
-      // noop
-    })
+    let task = new FileTask()
+    task.start(tagfiles, cwd)
+    return task
   }
 }
