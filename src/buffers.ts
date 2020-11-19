@@ -54,19 +54,17 @@ export default class BufferList extends BasicList {
     this.addAction('preview', async (item, context) => {
       let { nvim } = this
       let { bufname, bufnr } = item.data
-      let info = await nvim.call('getbufinfo', bufnr) as any
-      if (bufname.startsWith('term://')) return
-      let height = this.previewHeight
-      let mod = context.options.position == 'top' ? 'below' : ''
-      let winid = context.listWindow.id
-      nvim.pauseNotification()
-      nvim.command('pclose', true)
-      nvim.call('coc#util#open_file', [`${mod} ${height}sp +setl\\ previewwindow`, bufname], true)
-      nvim.command('setl winfixheight', true)
-      nvim.command(`exe ${info.lnum}`, true)
-      nvim.command('normal! zt', true)
-      nvim.call('win_gotoid', [winid], true)
-      await nvim.resumeNotification()
+      let lines = await nvim.call('getbufline', [bufnr, 1, 200]) as string[]
+      let filetype = await nvim.call('getbufvar', [bufnr, '&filetype', 'txt']) as string
+      if (lines.length == 0) {
+        lines = [`Unable to get lines for buffer ${bufname}, add 'set hidden' in your vimrc.`]
+      }
+      await this.preview({
+        filetype,
+        bufname,
+        lines,
+        sketch: true
+      }, context)
     })
   }
 
