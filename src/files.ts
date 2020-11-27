@@ -35,6 +35,7 @@ class Task extends EventEmitter implements ListTask {
         let location = Location.create(Uri.file(file).toString(), range)
         this.emit('data', {
           label: line,
+          sortText: file,
           location
         })
       })

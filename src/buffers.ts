@@ -78,15 +78,16 @@ export default class BufferList extends BasicList {
       if (!ms) return res
 
       const bufnr = Number(ms[1])
-      const item: ListItem = {
+      const item = {
         label: ` ${colors.magenta(ms[1])}${colors.america(ms[2])}${ms[3]}`,
         filterText: ms[3],
+        sortText: ms[1],
         data: {
           bufnr,
           bufname: ms[3],
           visible: ms[2].indexOf('a') !== -1
         }
-      }
+      } as ListItem
 
       return bufnr === bufnrAlt
         ? [item, ...res]

@@ -94,12 +94,13 @@ export default class MruList extends BasicList {
     let files = await this.mru.load()
     const range = Range.create(0, 0, 0, 0)
     if (!findAll) files = files.filter(file => isParentFolder(cwd, file))
-    return files.map(file => {
+    return files.map((file, i) => {
       let uri = URI.file(file).toString()
       let location = Location.create(uri.toString(), range)
       return {
         label: findAll ? file : path.relative(cwd, file),
         data: { uri },
+        sortText: String.fromCharCode(i),
         location
       }
     })
