@@ -30,25 +30,27 @@ export default class SessionList extends BasicList {
     })
 
     this.disposables.push(commands.registerCommand('session.save', async (name?: string) => {
-      if (!name) {
-        name = await nvim.getVvar('this_session') as string
+      setTimeout(async () => {
         if (!name) {
-          let defaultValue = path.basename(workspace.rootPath)
-          name = await workspace.requestInput('session name', defaultValue)
-          if (!name) return
+          name = await nvim.getVvar('this_session') as string
+          if (!name) {
+            let defaultValue = path.basename(workspace.rootPath)
+            name = await workspace.requestInput('session name', defaultValue)
+            if (!name) return
+          }
         }
-      }
-      if (!name.endsWith('.vim')) name = name + '.vim'
-      let escaped: string
-      if (!path.isAbsolute(name)) {
-        let folder = await this.getSessionFolder()
-        escaped = await nvim.call('fnameescape', [path.join(folder, name)])
-      } else {
-        escaped = await nvim.call('fnameescape', [name])
-        name = path.basename(name, '.vim')
-      }
-      await nvim.command(`silent mksession! ${escaped}`)
-      workspace.showMessage(`Saved session: ${name}`, 'more')
+        if (!name.endsWith('.vim')) name = name + '.vim'
+        let escaped: string
+        if (!path.isAbsolute(name)) {
+          let folder = await this.getSessionFolder()
+          escaped = await nvim.call('fnameescape', [path.join(folder, name)])
+        } else {
+          escaped = await nvim.call('fnameescape', [name])
+          name = path.basename(name, '.vim')
+        }
+        await nvim.command(`silent mksession! ${escaped}`)
+        workspace.showMessage(`Saved session: ${name}`, 'more')
+      }, 50)
     }))
 
     this.disposables.push(commands.registerCommand('session.load', async (name?: string) => {
