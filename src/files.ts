@@ -60,7 +60,6 @@ class Task extends EventEmitter implements ListTask {
 export default class FilesList extends BasicList {
   public readonly name = 'files'
   public readonly defaultAction = 'open'
-  public readonly fzySort = true
   public description = 'Search files by rg or ag'
   public readonly detail = `Install ripgrep in your $PATH to have best experience.
 Files is searched from current cwd by default.

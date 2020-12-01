@@ -3,7 +3,6 @@ import colors from 'colors/safe'
 const regex = /^\s*(\d+)(.+?)"(.+?)".*/
 
 export default class BufferList extends BasicList {
-  public readonly fzySort = true
   public readonly name = 'buffers'
   public readonly defaultAction = 'open'
   public description = 'get buffer list'

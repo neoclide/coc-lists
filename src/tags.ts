@@ -17,7 +17,8 @@ class FileTask extends EventEmitter implements ListTask {
     let count = files.length
     for (let file of files) {
       let filepath = path.isAbsolute(file) ? file : path.join(cwd, file)
-      let stream = fs.createReadStream(path.join(cwd, file), { encoding: 'utf8' })
+      if (!fs.existsSync(filepath)) continue
+      let stream = fs.createReadStream(filepath, { encoding: 'utf8' })
       this.streams.push(stream)
       const rl = readline.createInterface({
         input: stream
