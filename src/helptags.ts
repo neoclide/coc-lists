@@ -1,8 +1,7 @@
 import { BasicList, ListContext, ListItem, Neovim, workspace } from 'coc.nvim'
-import { Location, Position, Range } from 'vscode-languageserver-protocol'
-import { URI } from 'vscode-uri'
 import fs from 'fs'
 import path from 'path'
+import { URI } from 'vscode-uri'
 import { isParentFolder } from './util'
 
 export default class Helptags extends BasicList {
@@ -62,8 +61,6 @@ export default class Helptags extends BasicList {
     nvim.command('syntax match CocHelptagsFile /\\t.*$/ contained containedin=CocHelptagsLine', true)
     nvim.command('highlight default link CocHelptagsName Identifier', true)
     nvim.command('highlight default link CocHelptagsFile Comment', true)
-    nvim.resumeNotification(false, true).catch(_e => {
-      // noop
-    })
+    nvim.resumeNotification(false, true)
   }
 }

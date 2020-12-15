@@ -1,4 +1,4 @@
-import { BasicList, commands, ListContext, ListTask, Neovim, workspace } from 'coc.nvim'
+import { BasicList, commands, ListContext, ListTask, Neovim, window, workspace } from 'coc.nvim'
 import colors from 'colors/safe'
 import { EventEmitter } from 'events'
 import fs, { ReadStream } from 'fs'
@@ -73,8 +73,8 @@ export default class Helptags extends BasicList {
     this.disposables.push(commands.registerCommand('tags.generate', async () => {
       let config = workspace.getConfiguration('list.source.tags')
       let cmd = config.get<string>('command', 'ctags -R .')
-      let res = await workspace.runTerminalCommand(cmd)
-      if (res.success) workspace.showMessage('tagfile generated')
+      let res = await window.runTerminalCommand(cmd)
+      if (res.success) window.showMessage('tagfile generated')
     }))
   }
 

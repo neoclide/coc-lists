@@ -1,4 +1,4 @@
-import { BasicList, commands, ListContext, ListItem, Mru, Neovim, Uri, workspace } from 'coc.nvim'
+import { BasicList, commands, ListContext, ListItem, Mru, Neovim, Uri, window, workspace } from 'coc.nvim'
 import fs from 'fs'
 import mkdirp from 'mkdirp'
 import os from 'os'
@@ -35,7 +35,7 @@ export default class SessionList extends BasicList {
           name = await nvim.getVvar('this_session') as string
           if (!name) {
             let defaultValue = path.basename(workspace.rootPath)
-            name = await workspace.requestInput('session name', defaultValue)
+            name = await window.requestInput('session name', defaultValue)
             if (!name) return
           }
         }
@@ -49,7 +49,7 @@ export default class SessionList extends BasicList {
           name = path.basename(name, '.vim')
         }
         await nvim.command(`silent mksession! ${escaped}`)
-        workspace.showMessage(`Saved session: ${name}`, 'more')
+        window.showMessage(`Saved session: ${name}`, 'more')
       }, 50)
     }))
 
@@ -59,7 +59,7 @@ export default class SessionList extends BasicList {
         let files = await promisify(fs.readdir)(folder, { encoding: 'utf8' })
         files = files.filter(p => p.endsWith('.vim'))
         files = files.map(p => path.basename(p, '.vim'))
-        let idx = await workspace.showQuickpick(files, 'choose session:')
+        let idx = await window.showQuickpick(files, 'choose session:')
         if (idx == -1) return
         name = files[idx]
       }
@@ -77,7 +77,7 @@ export default class SessionList extends BasicList {
 
     this.disposables.push(commands.registerCommand('session.restart', async () => {
       if (!workspace.isNvim || process.env.TERM_PROGRAM != 'iTerm.app') {
-        workspace.showMessage('Sorry, restart support iTerm and neovim only.', 'warning')
+        window.showMessage('Sorry, restart support iTerm and neovim only.', 'warning')
         return
       }
       let filepath = await this.nvim.getVvar('this_session') as string

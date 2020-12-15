@@ -18,7 +18,7 @@ export function characterIndex(content: string, byteIndex: number): number {
 export function wait(ms: number): Promise<any> {
   return new Promise(resolve => {
     setTimeout(() => {
-      resolve()
+      resolve(undefined)
     }, ms)
   })
 }

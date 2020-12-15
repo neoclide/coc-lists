@@ -42,8 +42,6 @@ export default class Colors extends BasicList {
     nvim.command('syntax match CocColorsFile /\\t.*$/ contained containedin=CocColorsLine', true)
     nvim.command('highlight default link CocColorsName Identifier', true)
     nvim.command('highlight default link CocColorsFile Comment', true)
-    nvim.resumeNotification(false, true).catch(_e => {
-      // noop
-    })
+    nvim.resumeNotification(false, true)
   }
 }
