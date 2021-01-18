@@ -1,5 +1,4 @@
-import { BasicList, ListContext, ListItem, Neovim, workspace, AnsiHighlight } from 'coc.nvim'
-import { Location, Range } from 'vscode-languageserver-protocol'
+import { AnsiHighlight, BasicList, ListContext, ListItem, Neovim, Range, workspace } from 'coc.nvim'
 import { pad } from './util'
 
 export default class Lines extends BasicList {

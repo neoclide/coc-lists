@@ -1,8 +1,7 @@
-import { BasicList, commands, Document, events, ListContext, ListItem, Mru, Neovim, workspace } from 'coc.nvim'
+import { BasicList, commands, Location, Range, Document, events, ListContext, ListItem, Mru, Neovim, workspace } from 'coc.nvim'
 import fs from 'fs'
 import minimatch from 'minimatch'
 import path from 'path'
-import { Location, Range } from 'vscode-languageserver-protocol'
 import { URI } from 'vscode-uri'
 import { isParentFolder, wait } from './util'
 
@@ -82,8 +81,6 @@ export default class MruList extends BasicList {
     if (preview == 1) return
     let filepath = uri.fsPath
     let patterns = this.config.get<string[]>('source.mru.excludePatterns', [])
-    let ignoreGitIgnore = this.config.get<boolean>('source.mru.ignoreGitIgnore', false)
-    if (ignoreGitIgnore && doc.isIgnored) return
     if (patterns.some(p => minimatch(filepath, p))) return
     await this.mru.add(filepath)
   }

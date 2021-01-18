@@ -1,6 +1,5 @@
-import { BasicList, ListContext, ListItem, Neovim, workspace } from 'coc.nvim'
+import { BasicList, ListContext, ListItem, Location, Neovim, Range, workspace } from 'coc.nvim'
 import colors from 'colors/safe'
-import { Location, Range } from 'vscode-languageserver-protocol'
 import { pad } from './util'
 
 const matchOperatorsRe = /[|\\{}()[\]^$+*?.]/g

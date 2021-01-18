@@ -1,6 +1,5 @@
-import { BasicList, ListContext, ListItem, Neovim, workspace } from 'coc.nvim'
-import { Location, Position, Range } from 'vscode-languageserver-protocol'
-import {URI} from 'vscode-uri'
+import { BasicList, ListContext, ListItem, Location, Neovim, Position, Range, workspace } from 'coc.nvim'
+import { URI } from 'vscode-uri'
 import { characterIndex } from './util'
 
 export default class QuickfixList extends BasicList {

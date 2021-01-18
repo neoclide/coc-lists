@@ -1,11 +1,10 @@
 import { ChildProcess, spawn } from 'child_process'
-import { BasicList, ListContext, ListTask, Neovim, Uri, workspace } from 'coc.nvim'
+import { BasicList, ListContext, ListTask, Location, Neovim, Range, Uri, workspace } from 'coc.nvim'
 import { EventEmitter } from 'events'
 import fs from 'fs'
 import minimatch from 'minimatch'
 import path from 'path'
 import readline from 'readline'
-import { Location, Range } from 'vscode-languageserver-protocol'
 import { executable } from './util'
 
 class Task extends EventEmitter implements ListTask {

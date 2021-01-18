@@ -1,10 +1,9 @@
-import { BasicList, commands, ListContext, ListItem, Mru, Neovim, Uri, window, workspace } from 'coc.nvim'
+import { BasicList, commands, ListContext, ListItem, Location, Mru, Neovim, Range, Uri, window, workspace } from 'coc.nvim'
 import fs from 'fs'
 import mkdirp from 'mkdirp'
 import os from 'os'
 import path from 'path'
 import { promisify } from 'util'
-import { Location, Range } from 'vscode-languageserver-protocol'
 
 export default class SessionList extends BasicList {
   public readonly name = 'sessions'
