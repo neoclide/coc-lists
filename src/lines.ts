@@ -1,4 +1,4 @@
-import { AnsiHighlight, BasicList, ListContext, ListItem, Neovim, Range, workspace } from 'coc.nvim'
+import { AnsiHighlight, BasicList, ListContext, ListItem, Location, Neovim, Range, workspace } from 'coc.nvim'
 import { pad } from './util'
 
 export default class Lines extends BasicList {
