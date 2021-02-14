@@ -3,6 +3,7 @@ import BufferList from './buffers'
 import Cmdhistory from './cmdhistory'
 import Colors from './colors'
 import Commands from './commands'
+import DirectoriesList from './directories'
 import FilesList from './files'
 import Filetypes from './filetypes'
 import GrepList from './grep'
@@ -57,6 +58,9 @@ export async function activate(context: ExtensionContext): Promise<void> {
   }
   if (!isDisabled('filetypes')) {
     subscriptions.push(listManager.registerList(new Filetypes(nvim)))
+  }
+  if (!isDisabled('directories')) {
+    subscriptions.push(listManager.registerList(new DirectoriesList(nvim)))
   }
   if (!isDisabled('files')) {
     subscriptions.push(listManager.registerList(new FilesList(nvim)))

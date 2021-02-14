@@ -7,6 +7,7 @@ Including:
 - [x] `buffers` current buffer list.
 - [x] `cmdhistory` history of commands.
 - [x] `colors` colors schemes.
+- [x] `directories` search directories from current cwd.
 - [x] `files` search files from current cwd.
 - [x] `filetypes` file types.
 - [x] `grep` grep text from current cwd.
