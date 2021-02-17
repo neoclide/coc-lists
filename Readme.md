@@ -17,6 +17,7 @@ Including:
 - [x] `marks` marks of vim.
 - [x] `mru` most recent used files.
 - [x] `quickfix` items from vim's quickfix list.
+- [x] `registers` registers of vim.
 - [x] `searchhistory` history of search.
 - [x] `sessions` session list.
 - [x] `tags` search tag files.
