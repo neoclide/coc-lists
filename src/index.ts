@@ -1,5 +1,6 @@
 import { ExtensionContext, listManager, workspace } from 'coc.nvim'
 import BufferList from './buffers'
+import ChangeList from './changes'
 import Cmdhistory from './cmdhistory'
 import Colors from './colors'
 import Commands from './commands'
@@ -69,6 +70,9 @@ export async function activate(context: ExtensionContext): Promise<void> {
   }
   if (!isDisabled('buffers')) {
     subscriptions.push(listManager.registerList(new BufferList(nvim)))
+  }
+  if (!isDisabled('changes')) {
+    subscriptions.push(listManager.registerList(new ChangeList(nvim)))
   }
   if (!isDisabled('grep')) {
     subscriptions.push(listManager.registerList(new GrepList(nvim)))
