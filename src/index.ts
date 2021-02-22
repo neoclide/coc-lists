@@ -14,6 +14,7 @@ import Maps from './maps'
 import Marks from './marks'
 import MruList from './mru'
 import QuickfixList from './quickfix'
+import RegisterList from './registers'
 import Searchhistory from './searchhistory'
 import SessionList from './session'
 import Tags from './tags'
@@ -67,6 +68,9 @@ export async function activate(context: ExtensionContext): Promise<void> {
   }
   if (!isDisabled('helptags')) {
     subscriptions.push(listManager.registerList(new Helptags(nvim)))
+  }
+  if (!isDisabled('registers')) {
+    subscriptions.push(listManager.registerList(new RegisterList(nvim)))
   }
   if (!isDisabled('buffers')) {
     subscriptions.push(listManager.registerList(new BufferList(nvim)))
