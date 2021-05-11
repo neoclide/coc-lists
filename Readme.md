@@ -5,6 +5,7 @@ Some basic list sources for [coc.nvim](https://github.com/neoclide/coc.nvim/)
 Including:
 
 - [x] `buffers` current buffer list.
+- [x] `changes` changes list.
 - [x] `cmdhistory` history of commands.
 - [x] `colors` colors schemes.
 - [x] `files` search files from current cwd.
