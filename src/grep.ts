@@ -2,7 +2,6 @@ import { ChildProcess, spawn } from 'child_process'
 import { BasicList, ListContext, ListItem, ListTask, Location, Neovim, Position, Range, workspace } from 'coc.nvim'
 import { EventEmitter } from 'events'
 import minimatch from 'minimatch'
-import os from 'os'
 import path from 'path'
 import readline from 'readline'
 import { URI } from 'vscode-uri'
@@ -166,9 +165,7 @@ Grep source provide some uniformed options to ease differences between rg and ag
       args = convertOptions(args, cmd, useLiteral)
       args = args.filter(s => ['-F', '-folder', '-W', '-workspace'].indexOf(s) == -1)
     }
-    if (os.platform() == 'win32') {
-      args.push('--', './')
-    }
+    args.push('--', './')
     task.start(cmd, args, cwds, patterns)
     return task
   }
