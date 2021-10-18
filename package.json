@@ -69,6 +69,11 @@
             "type": "string"
           }
         },
+        "list.source.files.filterByName": {
+          "type": "boolean",
+          "default": false,
+          "description": "Filter files by name only"
+        },
         "list.source.mru.maxLength": {
           "type": "number",
           "default": 1000,
@@ -89,6 +94,11 @@
           "items": {
             "type": "string"
           }
+        },
+        "list.source.mru.filterByName": {
+          "type": "boolean",
+          "default": false,
+          "description": "Filter files by name only"
         },
         "list.source.grep.useLiteral": {
           "type": "boolean",

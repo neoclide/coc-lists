@@ -12,6 +12,8 @@ class Task extends EventEmitter implements ListTask {
 
   public start(cmd: string, args: string[], cwds: string[], patterns: string[]): void {
     let remain = cwds.length
+    let config = workspace.getConfiguration('list.source.files')
+    let filterByName = config.get<boolean>('filterByName', false)
     for (let cwd of cwds) {
       let process = spawn(cmd, args, { cwd })
       this.processes.push(process)
@@ -32,11 +34,21 @@ class Task extends EventEmitter implements ListTask {
         }
         if (hasPattern && patterns.some(p => minimatch(file, p))) return
         let location = Location.create(Uri.file(file).toString(), range)
-        this.emit('data', {
-          label: line,
-          sortText: file,
-          location
-        })
+        if (!filterByName) {
+          this.emit('data', {
+            label: line,
+            sortText: file,
+            location
+          })
+        } else {
+          let name = path.basename(file)
+          this.emit('data', {
+            label: `${name}\t${line}`,
+            sortText: file,
+            filterText: name,
+            location
+          })
+        }
       })
       rl.on('close', () => {
         remain = remain - 1
@@ -151,5 +163,19 @@ Note that rg ignore hidden files by default.`
     let excludePatterns = this.getConfig().get<string[]>('excludePatterns', [])
     task.start(res.cmd, res.args.concat(searchArgs), cwds, excludePatterns)
     return task
+  }
+
+  public doHighlight(): void {
+    let config = workspace.getConfiguration('list.source.files')
+    let filterByName = config.get<boolean>('filterByName', false)
+    if (filterByName) {
+      let { nvim } = this 
+      nvim.pauseNotification()
+      nvim.command('syntax match CocFilesName /\\v^[^\\t]+/ contained containedin=CocFilesLine', true)
+      nvim.command('syntax match CocFilesFile /\\t.*$/ contained containedin=CocFilesLine', true)
+      nvim.command('highlight default link CocFilesName Identifier', true)
+      nvim.command('highlight default link CocFilesFile Comment', true)
+      nvim.resumeNotification(false, true)
+    }
   }
 }
