@@ -89,17 +89,45 @@ export default class MruList extends BasicList {
     let cwd = context.cwd
     let findAll = context.args.indexOf('-A') !== -1
     let files = await this.mru.load()
+    let config = workspace.getConfiguration('list.source.mru')
+    let filterByName = config.get<boolean>('filterByName', false)
     const range = Range.create(0, 0, 0, 0)
     if (!findAll) files = files.filter(file => isParentFolder(cwd, file))
     return files.map((file, i) => {
       let uri = URI.file(file).toString()
       let location = Location.create(uri.toString(), range)
-      return {
-        label: findAll ? file : path.relative(cwd, file),
-        data: { uri },
-        sortText: String.fromCharCode(i),
-        location
+      if (!filterByName) {
+        return {
+          label: findAll ? file : path.relative(cwd, file),
+          data: { uri },
+          sortText: String.fromCharCode(i),
+          location
+        }
+      } else {
+        let name = path.basename(file)
+        file = findAll ? file : path.relative(cwd, file)
+        return {
+          label: `${name}\t${file}`,
+          data: { uri },
+          sortText: String.fromCharCode(i),
+          filterText: name,
+          location
+        }
       }
     })
+  }
+
+  public doHighlight(): void {
+    let config = workspace.getConfiguration('list.source.mru')
+    let filterByName = config.get<boolean>('filterByName', false)
+    if (filterByName) {
+      let { nvim } = this 
+      nvim.pauseNotification()
+      nvim.command('syntax match CocMruName /\\v^[^\\t]+/ contained containedin=CocMruLine', true)
+      nvim.command('syntax match CocMruFile /\\t.*$/ contained containedin=CocMruLine', true)
+      nvim.command('highlight default link CocMruName Identifier', true)
+      nvim.command('highlight default link CocMruFile Comment', true)
+      nvim.resumeNotification(false, true)
+    }
   }
 }
