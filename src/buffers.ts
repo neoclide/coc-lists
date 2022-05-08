@@ -42,8 +42,11 @@ export default class BufferList extends BasicList {
 
     // unload buffer
     this.addAction('delete', async item => {
-      let { bufnr } = item.data
+      let { bufnr, bufname, isArgs } = item.data
       await nvim.command(`bdelete ${bufnr}`)
+      if (isArgs) {
+        await nvim.command(`argdelete ${bufname}`)
+      }
     }, { persist: true, reload: true })
 
     this.addAction('wipe', async item => {
@@ -68,24 +71,31 @@ export default class BufferList extends BasicList {
     })
   }
 
-  public async loadItems(_context: ListContext): Promise<ListItem[]> {
+  public async loadItems(context: ListContext): Promise<ListItem[]> {
     const { nvim } = this
     const bufnrAlt = Number(await nvim.call('bufnr', '#'))
     const content = await nvim.call('execute', 'ls') as string
+    const isArgs = context.args.indexOf('--args') !== -1
+    const isPWD = context.args.indexOf('--pwd') !== -1
+    const args = isArgs ? await nvim.eval("map(argv(), 'bufnr(v:val)')") as number[] : []
 
     return content.split(/\n/).reduce((res, line) => {
       const ms = line.match(regex)
       if (!ms) return res
-
       const bufnr = Number(ms[1])
+      const bufname = ms[3]
+      if (isArgs && args.indexOf(bufnr) === -1) return res
+      if (isPWD && (bufname[0] === '/' || bufname[0] === '~')) return res
+
       const item = {
         label: ` ${colors.magenta(ms[1])}${colors.america(ms[2])}${ms[3]}`,
-        filterText: ms[3],
+        filterText: bufname,
         sortText: ms[1],
         data: {
           bufnr,
-          bufname: ms[3],
-          visible: ms[2].indexOf('a') !== -1
+          bufname,
+          visible: ms[2].indexOf('a') !== -1,
+          isArgs,
         }
       } as ListItem
 
