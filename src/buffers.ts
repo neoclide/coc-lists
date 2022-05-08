@@ -42,8 +42,11 @@ export default class BufferList extends BasicList {
 
     // unload buffer
     this.addAction('delete', async item => {
-      let { bufnr } = item.data
+      let { bufnr, bufname, isArgs } = item.data
       await nvim.command(`bdelete ${bufnr}`)
+      if (isArgs) {
+        await nvim.command(`argdelete ${bufname}`)
+      }
     }, { persist: true, reload: true })
 
     this.addAction('wipe', async item => {
@@ -68,14 +71,17 @@ export default class BufferList extends BasicList {
     })
   }
 
-  public async loadItems(_context: ListContext): Promise<ListItem[]> {
+  public async loadItems(context: ListContext): Promise<ListItem[]> {
     const { nvim } = this
     const bufnrAlt = Number(await nvim.call('bufnr', '#'))
     const content = await nvim.call('execute', 'ls') as string
+    const isArgs = context.args.indexOf('--args') !== -1
+    const args = isArgs ? await nvim.call('execute', 'ar') as string : ''
 
     return content.split(/\n/).reduce((res, line) => {
       const ms = line.match(regex)
       if (!ms) return res
+      if (isArgs && args.indexOf(ms[3]) === -1) return res
 
       const bufnr = Number(ms[1])
       const item = {
@@ -85,7 +91,8 @@ export default class BufferList extends BasicList {
         data: {
           bufnr,
           bufname: ms[3],
-          visible: ms[2].indexOf('a') !== -1
+          visible: ms[2].indexOf('a') !== -1,
+          isArgs,
         }
       } as ListItem
 
