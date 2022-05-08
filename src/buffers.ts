@@ -76,21 +76,24 @@ export default class BufferList extends BasicList {
     const bufnrAlt = Number(await nvim.call('bufnr', '#'))
     const content = await nvim.call('execute', 'ls') as string
     const isArgs = context.args.indexOf('--args') !== -1
-    const args = isArgs ? await nvim.call('execute', 'ar') as string : ''
+    const isPWD = context.args.indexOf('--pwd') !== -1
+    const args = isArgs ? await nvim.eval("map(argv(), 'bufnr(v:val)')") as number[] : []
 
     return content.split(/\n/).reduce((res, line) => {
       const ms = line.match(regex)
       if (!ms) return res
-      if (isArgs && args.indexOf(ms[3]) === -1) return res
-
       const bufnr = Number(ms[1])
+      const bufname = ms[3]
+      if (isArgs && args.indexOf(bufnr) === -1) return res
+      if (isPWD && (bufname[0] === '/' || bufname[0] === '~')) return res
+
       const item = {
         label: ` ${colors.magenta(ms[1])}${colors.america(ms[2])}${ms[3]}`,
-        filterText: ms[3],
+        filterText: bufname,
         sortText: ms[1],
         data: {
           bufnr,
-          bufname: ms[3],
+          bufname,
           visible: ms[2].indexOf('a') !== -1,
           isArgs,
         }
