@@ -165,7 +165,9 @@ Grep source provide some uniformed options to ease differences between rg and ag
       args = convertOptions(args, cmd, useLiteral)
       args = args.filter(s => ['-F', '-folder', '-W', '-workspace'].indexOf(s) == -1)
     }
-    args.push('--', './')
+    if (!args.includes('--')) {
+      args.push('--', './')
+    }
     task.start(cmd, args, cwds, patterns)
     return task
   }
