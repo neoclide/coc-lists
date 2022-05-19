@@ -137,7 +137,7 @@ nnoremap <silent> <space>w  :exe 'CocList -I --normal --input='.expand('<cword>'
 
 Q: How to grep word in a specific folder?
 
-A: Pass -- `/folder/to/search/from` to `CocList grep`
+A: Pass `-- /folder/to/search/from` to `CocList grep`
 
 ```vim
 :CocList grep word -- /folder/to/search/from
