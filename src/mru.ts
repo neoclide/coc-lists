@@ -123,9 +123,7 @@ export default class MruList extends BasicList {
     if (filterByName) {
       let { nvim } = this 
       nvim.pauseNotification()
-      nvim.command('syntax match CocMruName /\\v^[^\\t]+/ contained containedin=CocMruLine', true)
       nvim.command('syntax match CocMruFile /\\t.*$/ contained containedin=CocMruLine', true)
-      nvim.command('highlight default link CocMruName Identifier', true)
       nvim.command('highlight default link CocMruFile Comment', true)
       nvim.resumeNotification(false, true)
     }
