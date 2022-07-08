@@ -171,9 +171,7 @@ Note that rg ignore hidden files by default.`
     if (filterByName) {
       let { nvim } = this 
       nvim.pauseNotification()
-      nvim.command('syntax match CocFilesName /\\v^[^\\t]+/ contained containedin=CocFilesLine', true)
       nvim.command('syntax match CocFilesFile /\\t.*$/ contained containedin=CocFilesLine', true)
-      nvim.command('highlight default link CocFilesName Identifier', true)
       nvim.command('highlight default link CocFilesFile Comment', true)
       nvim.resumeNotification(false, true)
     }
