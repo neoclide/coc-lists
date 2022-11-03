@@ -119,6 +119,11 @@
           "default": 300,
           "description": "Don't print lines longer than this limit in bytes, ripgrep only."
         },
+        "list.source.grep.maxLines": {
+          "type": "number",
+          "default": 0,
+          "description": "Limit the number of matching lines in interactive mode, 0 is not limited."
+        },
         "list.source.tags.command": {
           "type": "string",
           "default": "ctags -R .",

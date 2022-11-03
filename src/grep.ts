@@ -9,16 +9,17 @@ import { executable } from './util'
 import { ansiparse } from './util/ansiparse'
 import { convertOptions } from './util/option'
 
-const lineRegex = /^(.+):(\d+):(\d+):(.*)/
+const lineRegex = /^(.+?):(\d+):(\d+):(.*)/
 const controlCode = '\x1b'
 
 class Task extends EventEmitter implements ListTask {
   private processes: ChildProcess[] = []
+  private lines: number = 0
   constructor(private interactive: boolean) {
     super()
   }
 
-  public start(cmd: string, args: string[], cwds: string[], patterns: string[]): void {
+  public start(cmd: string, args: string[], cwds: string[], patterns: string[], maxLines: number): void {
     for (let cwd of cwds) {
       let remain = cwds.length
       let process = spawn(cmd, args, { cwd })
@@ -33,6 +34,7 @@ class Task extends EventEmitter implements ListTask {
       const rl = readline.createInterface(process.stdout)
       let hasPattern = patterns.length > 0
       rl.on('line', line => {
+        if (this.interactive && (maxLines > 0) && (this.lines >= maxLines)) return
         let ms: RegExpMatchArray
         let escaped: string
         if (line.indexOf(controlCode) !== -1) {
@@ -53,6 +55,7 @@ class Task extends EventEmitter implements ListTask {
           filterText: this.interactive ? '' : escaped,
           location
         })
+        this.lines++;
       })
       rl.on('close', () => {
         remain = remain - 1
@@ -124,6 +127,7 @@ Grep source provide some uniformed options to ease differences between rg and ag
     let cmd = config.get<string>('command', 'rg')
     let args = config.get<string[]>('args', []).slice()
     let useLiteral = config.get<boolean>('useLiteral', true)
+    let maxLines = config.get<number>("maxLines", 0)
     if (cmd == 'rg') {
       let maxColumns = config.get<number>('maxColumns', 300)
       args.push('--color', 'always', '--max-columns', maxColumns.toString(), '--vimgrep')
@@ -168,7 +172,7 @@ Grep source provide some uniformed options to ease differences between rg and ag
     if (!args.includes('--')) {
       args.push('--', './')
     }
-    task.start(cmd, args, cwds, patterns)
+    task.start(cmd, args, cwds, patterns, maxLines)
     return task
   }
 }
