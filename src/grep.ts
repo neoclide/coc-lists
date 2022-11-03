@@ -9,7 +9,7 @@ import { executable } from './util'
 import { ansiparse } from './util/ansiparse'
 import { convertOptions } from './util/option'
 
-const lineRegex = /^(.+):(\d+):(\d+):(.*)/
+const lineRegex = /^(.+?):(\d+):(\d+):(.*)/
 const controlCode = '\x1b'
 
 class Task extends EventEmitter implements ListTask {
