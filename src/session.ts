@@ -12,7 +12,7 @@ export default class SessionList extends BasicList {
   public detail = `After session load, coc service would be restarted.`
   private mru: Mru
 
-  constructor(nvim: Neovim, private extensionPath: string) {
+  constructor(nvim: Neovim, private extensionPath: string, private saveOnVimLeave: boolean) {
     super(nvim)
     this.mru = workspace.createMru('sessions')
     this.addLocationActions()
@@ -91,9 +91,7 @@ export default class SessionList extends BasicList {
       nvim.command('silent! wa | silent quitall!', true)
     }))
 
-    let cfg = workspace.getConfiguration('session')
-    let automake = cfg.get<boolean>('saveOnVimLeave', true)
-    if (automake) {
+    if (saveOnVimLeave) {
       this.disposables.push(workspace.registerAutocmd({
         event: 'VimLeavePre',
         request: true,

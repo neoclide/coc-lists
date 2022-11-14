@@ -23,8 +23,8 @@ import Words from './words'
 
 export async function activate(context: ExtensionContext): Promise<void> {
   let { subscriptions } = context
-  let config = workspace.getConfiguration('lists')
-  let disabled = config.get<string[]>('disabledLists', [])
+  let config = workspace.getConfiguration(undefined, null)
+  let disabled = config.get<string[]>('lists.disabledLists', [])
   let { nvim } = workspace
 
   function isDisabled(name): boolean {
@@ -34,7 +34,8 @@ export async function activate(context: ExtensionContext): Promise<void> {
     subscriptions.push(listManager.registerList(new LinesList(nvim)))
   }
   if (!isDisabled('session')) {
-    subscriptions.push(listManager.registerList(new SessionList(nvim, context.extensionPath)))
+    let saveOnVimLeave = config.get<boolean>('session.saveOnVimLeave', true)
+    subscriptions.push(listManager.registerList(new SessionList(nvim, context.extensionPath, saveOnVimLeave)))
   }
   if (!isDisabled('cmdhistory')) {
     subscriptions.push(listManager.registerList(new Cmdhistory(nvim)))
