@@ -46,7 +46,10 @@ class Task extends EventEmitter implements ListTask {
           escaped = line
         }
         if (!ms) return
-        let file = path.join(cwd, ms[1])
+        let file = ms[1]
+        if (!path.isAbsolute(file)) {
+          file = path.join(cwd, ms[1])
+        }
         if (hasPattern && patterns.some(p => minimatch(file, p))) return
         let pos = Position.create(Number(ms[2]) - 1, byteSlice(ms[4], 0, Number(ms[3]) - 1).length)
         let location = Location.create(URI.file(file).toString(), Range.create(pos, pos))
