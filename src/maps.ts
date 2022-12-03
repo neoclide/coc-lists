@@ -20,7 +20,7 @@ export default class Maps implements IList {
         if (Array.isArray(item)) return
         let { mode, key } = item.data
         let cmd = JSON.stringify(`verbose ${mode}map ${key}`)
-        let res = await nvim.eval(`split(execute(${cmd}}),"\n")[-1]`) as string
+        let res = await nvim.eval(`split(execute(${cmd}),"\n")[-1]`) as string
         if (/Last\sset\sfrom/.test(res)) {
           // the format of the latest vim and neovim is:
           //   Last set from ~/dotfiles/vimrc/remap.vim line 183

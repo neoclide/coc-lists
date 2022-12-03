@@ -40,10 +40,14 @@ export default class Commands implements IList {
         if (Array.isArray(item)) return
         let { command } = item.data
         if (!/^[A-Z]/.test(command)) return
-        let res = await nvim.eval(`split(execute("verbose command ${command}"),"\n")[-1]`) as string
+        let res = await nvim.eval(`split(execute("verbose command ${command}"),"\n")[2]`) as string
         if (/Last\sset\sfrom/.test(res)) {
-          let filepath = res.replace(/^\s+Last\sset\sfrom\s+/, '')
-          nvim.command(`edit +/${command} ${filepath}`, true)
+          let [filepath, _ ,line] = res.replace(/^\s+Last\sset\sfrom\s+/, '').split(/\s+/)
+          if (line) {
+            nvim.command(`edit +${line} ${filepath}`, true)
+          } else {
+            nvim.command(`edit +/${command} ${filepath}`, true)
+          }
         }
       }
     })
