@@ -19,10 +19,17 @@ export default class Maps implements IList {
       execute: async item => {
         if (Array.isArray(item)) return
         let { mode, key } = item.data
-        let res = await nvim.eval(`split(execute("verbose ${mode}map ${key}"),"\n")[-1]`) as string
+        let cmd = JSON.stringify(`verbose ${mode}map ${key}`)
+        let res = await nvim.eval(`split(execute(${cmd}}),"\n")[-1]`) as string
         if (/Last\sset\sfrom/.test(res)) {
-          let filepath = res.replace(/^\s+Last\sset\sfrom\s+/, '')
-          nvim.command(`edit +/${key} ${filepath}`, true)
+          // the format of the latest vim and neovim is:
+          //   Last set from ~/dotfiles/vimrc/remap.vim line 183
+          let [filepath, _ ,line] = res.replace(/^\s+Last\sset\sfrom\s+/, '').split(/\s+/)
+          if (line) {
+            nvim.command(`edit +${line} ${filepath}`, true)
+          } else {
+            nvim.command(`edit +/${key} ${filepath}`, true)
+          }
         }
       }
     })
