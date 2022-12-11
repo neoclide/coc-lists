@@ -41,7 +41,7 @@ export default class SessionList extends BasicList {
         if (!name.endsWith('.vim')) name = name + '.vim'
         let escaped: string
         if (!path.isAbsolute(name)) {
-          let folder = await this.getSessionFolder()
+          let folder = this.getSessionFolder()
           escaped = await nvim.call('fnameescape', [path.join(folder, name)])
         } else {
           escaped = await nvim.call('fnameescape', [name])
@@ -54,7 +54,7 @@ export default class SessionList extends BasicList {
 
     this.disposables.push(commands.registerCommand('session.load', async (name?: string) => {
       if (!name) {
-        let folder = await this.getSessionFolder()
+        let folder = this.getSessionFolder()
         let files = await promisify(fs.readdir)(folder, { encoding: 'utf8' })
         files = files.filter(p => p.endsWith('.vim'))
         files = files.map(p => path.basename(p, '.vim'))
@@ -66,7 +66,7 @@ export default class SessionList extends BasicList {
       if (path.isAbsolute(name)) {
         filepath = name
       } else {
-        let folder = await this.getSessionFolder()
+        let folder = this.getSessionFolder()
         filepath = path.join(folder, name.endsWith('.vim') ? name : `${name}.vim`)
       }
       setTimeout(async () => {
@@ -81,7 +81,7 @@ export default class SessionList extends BasicList {
       }
       let filepath = await this.nvim.getVvar('this_session') as string
       if (!filepath) {
-        let folder = await this.getSessionFolder()
+        let folder = this.getSessionFolder()
         filepath = path.join(folder, 'default.vim')
       }
       await nvim.command(`silent mksession! ${filepath}`)
@@ -98,10 +98,10 @@ export default class SessionList extends BasicList {
         callback: async () => {
           let curr = await this.nvim.getVvar('this_session') as string
           if (!curr) {
-            let folder = await this.getSessionFolder()
+            let folder = this.getSessionFolder()
             curr = path.join(folder, 'default.vim')
           }
-          await nvim.command(`silent mksession! ${curr}`)
+          nvim.command(`silent! mksession! ${curr}`, true)
         }
       }))
     }
@@ -129,7 +129,7 @@ export default class SessionList extends BasicList {
     }
   }
 
-  private async getSessionFolder(): Promise<string> {
+  private getSessionFolder(): string {
     let config = workspace.getConfiguration('session')
     let directory = config.get<string>('directory', '')
     directory = directory.replace(/^~/, os.homedir())
@@ -160,7 +160,7 @@ export default class SessionList extends BasicList {
   }
 
   public async loadItems(_context: ListContext): Promise<ListItem[]> {
-    let folder = await this.getSessionFolder()
+    let folder = this.getSessionFolder()
     let files = await promisify(fs.readdir)(folder, { encoding: 'utf8' })
     files = files.filter(p => p.endsWith('.vim'))
     let range = Range.create(0, 0, 0, 0)
