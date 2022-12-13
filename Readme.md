@@ -25,6 +25,7 @@ Including:
 - [x] `vimcommands` available vim commands.
 - [x] `windows` windows of vim.
 - [x] `words` search word in current buffer.
+- [x] `functions` available vim functions.
 
 For snippets list, use [coc-snippets](https://github.com/neoclide/coc-snippets).
 
