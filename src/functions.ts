@@ -1,4 +1,4 @@
-import { IList, ListAction, ListContext, ListItem, Neovim } from 'coc.nvim'
+import { IList, ListAction, ListContext, ListItem, Neovim, window } from 'coc.nvim'
 import colors from 'colors/safe'
 
 export default class Functions implements IList {
@@ -12,15 +12,27 @@ export default class Functions implements IList {
       name: 'open',
       execute: async item => {
         if (Array.isArray(item)) return
-        let { funcname } = item.data
-        let res = await nvim.eval(`split(execute("verbose function ${funcname}"),"\n")[1]`) as string
+        const { funcname } = item.data
+        const res = await nvim.eval(`split(execute("verbose function ${funcname}"),"\n")[1]`) as string
 
-          let [filepath, _ ,line] = res.replace(/^\s+Last\sset\sfrom\s+/, '').split(/\s+/)
-          if (line) {
-            nvim.command(`edit +${line} ${filepath}`, true)
-          } else {
-            nvim.command(`edit +/${funcname} ${filepath}`, true)
-          }
+        const [filepath, _ ,line] = res.replace(/^\s+Last\sset\sfrom\s+/, '').split(/\s+/)
+        if (line) {
+          nvim.command(`edit +${line} ${filepath}`, true)
+        } else {
+          nvim.command(`edit +/${funcname} ${filepath}`, true)
+        }
+      }
+    })
+    this.actions.push({
+      name: 'break',
+      execute: async item => {
+        if (Array.isArray(item)) return
+        const { funcname } = item.data
+        const breakcmd = `breakadd func ${funcname}`
+        nvim.command(breakcmd, true)
+        // close coc-list after setting breakpoint
+        nvim.command("CocListCancel", true)
+        window.showMessage(breakcmd)
       }
     })
   }
