@@ -12,7 +12,7 @@ export default class SessionList extends BasicList {
   public detail = `After session load, coc service would be restarted.`
   private mru: Mru
 
-  constructor(nvim: Neovim, private extensionPath: string, private saveOnVimLeave: boolean) {
+  constructor(nvim: Neovim, private extensionPath: string, saveOnVimLeave: boolean) {
     super(nvim)
     this.mru = workspace.createMru('sessions')
     this.addLocationActions()
@@ -100,6 +100,11 @@ export default class SessionList extends BasicList {
           if (!curr) {
             let folder = this.getSessionFolder()
             curr = path.join(folder, 'default.vim')
+          } else {
+            if (!path.isAbsolute(curr)) return
+            // check if folder of curr exists
+            let folder = path.dirname(curr)
+            if (!fs.existsSync(folder)) return
           }
           nvim.command(`silent! mksession! ${curr}`, true)
         }
