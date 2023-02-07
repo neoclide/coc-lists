@@ -48,6 +48,27 @@
             "type": "string"
           }
         },
+        "list.source.directories.command": {
+          "type": "string",
+          "default": "",
+          "description": "Command used for search for directories"
+        },
+        "list.source.directories.args": {
+          "type": "array",
+          "default": [],
+          "description": "Arguments for search command",
+          "items": {
+            "type": "string"
+          }
+        },
+        "list.source.directories.excludePatterns": {
+          "type": "array",
+          "default": [],
+          "description": "Minimatch patterns that should be excluded.",
+          "items": {
+            "type": "string"
+          }
+        },
         "list.source.files.command": {
           "type": "string",
           "default": "",
