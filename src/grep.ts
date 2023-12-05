@@ -1,5 +1,5 @@
 import { ChildProcess, spawn } from 'child_process'
-import { BasicList, ListContext, ListItem, ListTask, Location, Neovim, Position, Range, workspace } from 'coc.nvim'
+import { BasicList, ListContext, ListItem, ListTask, Neovim, workspace } from 'coc.nvim'
 import { EventEmitter } from 'events'
 import minimatch from 'minimatch'
 import path from 'path'
@@ -19,7 +19,7 @@ class Task extends EventEmitter implements ListTask {
     super()
   }
 
-  public start(cmd: string, args: string[], cwds: string[], patterns: string[], maxLines: number): void {
+  public start(text: string, cmd: string, args: string[], cwds: string[], patterns: string[], maxLines: number): void {
     for (let cwd of cwds) {
       let remain = cwds.length
       let process = spawn(cmd, args, { cwd })
@@ -51,12 +51,14 @@ class Task extends EventEmitter implements ListTask {
           file = path.join(cwd, ms[1])
         }
         if (hasPattern && patterns.some(p => minimatch(file, p))) return
-        let pos = Position.create(Number(ms[2]) - 1, byteSlice(ms[4], 0, Number(ms[3]) - 1).length)
-        let location = Location.create(URI.file(file).toString(), Range.create(pos, pos))
         this.emit('data', {
           label: line,
           filterText: this.interactive ? '' : escaped,
-          location
+          location: {
+            text,
+            uri: file,
+            line: ms[4],
+          }
         })
         this.lines++;
       })
@@ -172,10 +174,20 @@ Grep source provide some uniformed options to ease differences between rg and ag
       args = convertOptions(args, cmd, useLiteral)
       args = args.filter(s => ['-F', '-folder', '-W', '-workspace'].indexOf(s) == -1)
     }
+
+    let text = ''
+    if (!interactive) {
+      // no text in interactive mode, no text if search item contains regex
+      const regexPattern = /[\\^$.|?*+(){}[\]]/;
+      const last = args.slice(-1)[0]
+      if (!regexPattern.test(last)) {
+        text = last
+      }
+    }
     if (!args.includes('--')) {
       args.push('--', './')
     }
-    task.start(cmd, args, cwds, patterns, maxLines)
+    task.start(text, cmd, args, cwds, patterns, maxLines)
     return task
   }
 }
