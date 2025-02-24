@@ -86,7 +86,7 @@ export default class MruList extends BasicList {
   }
 
   public async loadItems(context: ListContext): Promise<ListItem[]> {
-    let cwd = context.cwd
+    let cwd = await this.nvim.call('getcwd')
     let findAll = context.args.indexOf('-A') !== -1
     let files = await this.mru.load()
     let config = workspace.getConfiguration('list.source.mru')
@@ -121,7 +121,7 @@ export default class MruList extends BasicList {
     let config = workspace.getConfiguration('list.source.mru')
     let filterByName = config.get<boolean>('filterByName', false)
     if (filterByName) {
-      let { nvim } = this 
+      let { nvim } = this
       nvim.pauseNotification()
       nvim.command('syntax match CocMruFile /\\t.*$/ contained containedin=CocMruLine', true)
       nvim.command('highlight default link CocMruFile Comment', true)
