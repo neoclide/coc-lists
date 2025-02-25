@@ -14,17 +14,14 @@ export default class Lines extends BasicList {
   }
 
   public async loadItems(context: ListContext): Promise<ListItem[]> {
-    let { input, window } = context
+    let { input, buffer } = context
     if (!context.options.interactive) {
       throw new Error('lines list works on interactive mode only.')
     }
-    if (!input.trim()) return []
-    let valid = await window.valid
-    if (!valid) return []
-    let buf = await window.buffer
-    let doc = workspace.getDocument(buf.id)
+    if (input.trim() === '') return []
+    let doc = workspace.getDocument(buffer.id)
     if (!doc) return []
-    let lines = await buf.lines
+    let lines = doc.getLines()
     let result: ListItem[] = []
     let inputs = input.trim().split(/\s+/)
     let flags = context.options.ignorecase ? 'iu' : 'u'
