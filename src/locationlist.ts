@@ -1,5 +1,4 @@
-import { BasicList, ListContext, ListItem, Location, Neovim, Position, Range, workspace } from 'coc.nvim'
-import { URI } from 'vscode-uri'
+import { BasicList, ListContext, Uri as URI, ListItem, Location, Neovim, Position, Range, workspace } from 'coc.nvim'
 import { characterIndex } from './util'
 
 export default class LocationList extends BasicList {

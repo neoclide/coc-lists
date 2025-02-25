@@ -1,6 +1,5 @@
 import { BasicList, commands, ListContext, ListItem, Location, Mru, Neovim, Range, Uri, window, workspace } from 'coc.nvim'
 import fs from 'fs'
-import mkdirp from 'mkdirp'
 import os from 'os'
 import path from 'path'
 import { promisify } from 'util'
@@ -144,7 +143,7 @@ export default class SessionList extends BasicList {
       directory = path.join(os.homedir(), folder)
     }
     if (!fs.existsSync(directory)) {
-      mkdirp.sync(directory)
+      fs.mkdirSync(directory, { recursive: true })
       if (isWin) {
         let folder = path.join(os.homedir(), '.vim/sessions')
         if (fs.existsSync(folder)) {

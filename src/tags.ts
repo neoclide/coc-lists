@@ -1,10 +1,9 @@
-import { BasicList, commands, ListContext, ListTask, Neovim, window, workspace } from 'coc.nvim'
+import { BasicList, commands, Uri as URI, ListContext, ListTask, Neovim, window, workspace } from 'coc.nvim'
 import colors from 'colors/safe'
 import { EventEmitter } from 'events'
 import fs, { ReadStream } from 'fs'
 import path from 'path'
 import readline from 'readline'
-import { URI } from 'vscode-uri'
 import { isParentFolder } from './util'
 
 class FileTask extends EventEmitter implements ListTask {
