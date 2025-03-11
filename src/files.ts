@@ -7,8 +7,8 @@ import path from 'path'
 import readline from 'readline'
 import { executable } from './util'
 
-class Task extends EventEmitter implements ListTask {
-  private processes: ChildProcess[] = []
+export class Task extends EventEmitter implements ListTask {
+  protected processes: ChildProcess[] = []
 
   public start(cmd: string, args: string[], cwds: string[], patterns: string[]): void {
     let remain = cwds.length
@@ -20,7 +20,7 @@ class Task extends EventEmitter implements ListTask {
       process.on('error', e => {
         this.emit('error', e.message)
       })
-      const rl = readline.createInterface(process.stdout)
+      const rl = readline.createInterface(this.post_process_hook(process))
       const range = Range.create(0, 0, 0, 0)
       let hasPattern = patterns.length > 0
       process.stderr.on('data', chunk => {
@@ -66,13 +66,18 @@ class Task extends EventEmitter implements ListTask {
       }
     }
   }
+
+  protected post_process_hook(process: ChildProcess) {
+    return process.stdout
+  }
 }
 
 export default class FilesList extends BasicList {
-  public readonly name = 'files'
+  public task = Task
+  public name = 'files'
   public readonly defaultAction = 'open'
   public description = 'Search files by rg or ag'
-  public readonly detail = `Install ripgrep in your $PATH to have best experience.
+  public detail = `Install ripgrep in your $PATH to have best experience.
 Files is searched from current cwd by default.
 Provide directory names as arguments to search other directories.
 Use 'list.source.files.command' configuration for custom search command.
@@ -159,7 +164,7 @@ Note that rg ignore hidden files by default.`
         }
       }
     }
-    let task = new Task()
+    let task = new this.task()
     let excludePatterns = this.getConfig().get<string[]>('excludePatterns', [])
     task.start(res.cmd, res.args.concat(searchArgs), cwds, excludePatterns)
     return task
