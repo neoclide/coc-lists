@@ -1,6 +1,6 @@
 import { BasicList, Uri as URI, commands, Location, Range, Document, events, ListContext, ListItem, Mru, Neovim, workspace } from 'coc.nvim'
 import fs from 'fs'
-import minimatch from 'minimatch'
+import { minimatch } from 'minimatch'
 import path from 'path'
 import { isParentFolder, wait } from './util'
 
@@ -17,7 +17,7 @@ export default class MruList extends BasicList {
   private mru: Mru
 
   constructor(nvim: Neovim) {
-    super(nvim)
+    super()
     this.mru = workspace.createMru('mru')
     this.addLocationActions()
     this.addAction(
@@ -85,7 +85,7 @@ export default class MruList extends BasicList {
   }
 
   public async loadItems(context: ListContext): Promise<ListItem[]> {
-    let cwd = await this.nvim.call('getcwd')
+    let cwd = await this.nvim.call('getcwd') as string
     let findAll = context.args.indexOf('-A') !== -1
     let files = await this.mru.load()
     let config = workspace.getConfiguration('list.source.mru')

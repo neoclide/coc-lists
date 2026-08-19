@@ -1,7 +1,7 @@
 import { ChildProcess, spawn } from 'child_process'
 import { BasicList, ListContext, ListItem, ListTask, Neovim, workspace } from 'coc.nvim'
 import { EventEmitter } from 'events'
-import minimatch from 'minimatch'
+import { minimatch } from 'minimatch'
 import path from 'path'
 import readline from 'readline'
 import { Uri as URI, } from 'coc.nvim'
@@ -12,17 +12,19 @@ import { convertOptions } from './util/option'
 const lineRegex = /^(.+?):(\d+):(\d+):(.*)/
 const controlCode = '\x1b'
 
-class Task extends EventEmitter implements ListTask {
+export class Task extends EventEmitter implements ListTask {
   private processes: ChildProcess[] = []
   private lines: number = 0
+  private remain = 0
   constructor(private interactive: boolean) {
     super()
   }
 
   public start(text: string, cmd: string, args: string[], cwds: string[], patterns: string[], maxLines: number): void {
+    this.remain = cwds.length
     for (let cwd of cwds) {
-      let remain = cwds.length
       let process = spawn(cmd, args, { cwd })
+      this.processes.push(process)
       process.on('error', e => {
         this.emit('error', e.message)
       })
@@ -63,8 +65,8 @@ class Task extends EventEmitter implements ListTask {
         this.lines++;
       })
       rl.on('close', () => {
-        remain = remain - 1
-        if (remain == 0) {
+        this.remain = this.remain - 1
+        if (this.remain == 0) {
           this.emit('end')
         }
       })
@@ -121,7 +123,7 @@ Grep source provide some uniformed options to ease differences between rg and ag
   }]
 
   constructor(nvim: Neovim) {
-    super(nvim)
+    super()
     this.addLocationActions()
   }
 
@@ -164,9 +166,9 @@ Grep source provide some uniformed options to ease differences between rg and ag
     } else {
       let valid = await window.valid
       if (valid) {
-        cwds = [await nvim.call('getcwd', window.id)]
+        cwds = [await nvim.call('getcwd', window.id) as string]
       } else {
-        cwds = [await nvim.call('getcwd')]
+        cwds = [await nvim.call('getcwd') as string]
       }
     }
     let task = new Task(interactive)

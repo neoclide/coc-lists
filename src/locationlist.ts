@@ -7,7 +7,7 @@ export default class LocationList extends BasicList {
   public description = 'locationlist of current window'
 
   constructor(nvim: Neovim) {
-    super(nvim)
+    super()
     this.addLocationActions()
   }
 
@@ -16,7 +16,7 @@ export default class LocationList extends BasicList {
     let { window } = context
     let valid = await window.valid
     if (!valid) return []
-    let list = await nvim.call('getloclist', [window.id])
+    let list = await nvim.call('getloclist', [window.id]) as any[]
     if (list.length == 0) return []
     let res: ListItem[] = []
     let buf = await context.window.buffer
@@ -30,8 +30,8 @@ export default class LocationList extends BasicList {
       } else if (type == 'W') {
         type = 'Warning'
       }
-      let bufname = await nvim.call('bufname', bufnr)
-      let fullpath = await nvim.call('fnamemodify', [bufname, ':p'])
+      let bufname = await nvim.call('bufname', bufnr) as string
+      let fullpath = await nvim.call('fnamemodify', [bufname, ':p']) as string
       let uri = URI.file(fullpath).toString()
       let line = await workspace.getLine(uri, lnum - 1)
       let pos = Position.create(lnum - 1, characterIndex(line, col - 1))

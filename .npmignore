@@ -1,4 +1,7 @@
+.codex
+.github
+test
 src
 tsconfig.json
-tslint.json
-*.map
+package-lock.json
+lib/*.map

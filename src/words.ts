@@ -15,7 +15,7 @@ export default class Words extends BasicList {
   }]
 
   constructor(nvim: Neovim) {
-    super(nvim)
+    super()
     this.addLocationActions()
   }
 

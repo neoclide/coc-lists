@@ -8,7 +8,7 @@ export default class Colors extends BasicList {
   public actions: ListAction[] = []
 
   constructor(nvim: Neovim) {
-    super(nvim)
+    super()
     this.addLocationActions()
     this.addAction('set', item => {
       if (Array.isArray(item)) return

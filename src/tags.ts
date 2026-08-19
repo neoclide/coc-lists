@@ -66,7 +66,7 @@ export default class Helptags extends BasicList {
   public readonly defaultAction = 'open'
 
   constructor(nvim: Neovim) {
-    super(nvim)
+    super()
     this.addLocationActions()
 
     this.disposables.push(commands.registerCommand('tags.generate', async () => {

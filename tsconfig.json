@@ -2,6 +2,7 @@
   "compilerOptions": {
     "resolveJsonModule": true,
     "esModuleInterop": true,
+    "noEmit": true,
     "strictNullChecks": false,
     "strictFunctionTypes": false,
     "allowUnreachableCode": true,
@@ -15,11 +16,15 @@
     "declaration": false,
     "outDir": "lib",
     "target": "es2017",
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "lib": ["es2018"],
+    "module": "es2022",
+    "moduleResolution": "bundler",
+    "lib": [
+      "es2018"
+    ],
     "plugins": []
   },
-  "include": ["src"],
+  "include": [
+    "src"
+  ],
   "exclude": []
 }

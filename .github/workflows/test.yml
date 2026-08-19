@@ -1,0 +1,23 @@
+name: Test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        editor: [nvim, vim]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: sudo apt-get update
+      - run: sudo apt-get install -y neovim vim-nox
+      - run: npm ci
+      - run: npm run test:${{ matrix.editor }}

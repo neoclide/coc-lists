@@ -9,7 +9,7 @@ export default class Lines extends BasicList {
   public readonly detail = `Patterns are separated by space, pattern starts with '!' means nagitive.`
 
   constructor(nvim: Neovim) {
-    super(nvim)
+    super()
     this.addLocationActions()
   }
 

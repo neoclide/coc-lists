@@ -1,5 +1,7 @@
 # coc-lists
 
+[![CI](https://github.com/neoclide/coc-lists/actions/workflows/test.yml/badge.svg)](https://github.com/neoclide/coc-lists/actions/workflows/test.yml)
+
 Some basic list sources for [coc.nvim](https://github.com/neoclide/coc.nvim/)
 
 Including:

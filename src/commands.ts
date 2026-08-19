@@ -22,7 +22,7 @@ export default class Commands implements IList {
           nvim.command(command, true)
         } else {
           const feedableCommand = `:${command}${shabang ? '' : ' '}`
-          const mode = await nvim.call('mode')
+          const mode = await nvim.call('mode') as string
           const isInsertMode = mode.startsWith('i')
           if (isInsertMode) {
             // For some reason `nvim.feedkeys` doesn't support CSI escapes, even though the

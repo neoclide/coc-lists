@@ -8,7 +8,7 @@ export default class BufferList extends BasicList {
   public description = 'get buffer list'
 
   constructor(nvim: Neovim) {
-    super(nvim)
+    super()
     this.addAction('open', async (item: ListItem) => {
       let { bufnr } = item.data
       await nvim.command(`buffer ${bufnr}`)

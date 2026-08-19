@@ -7,14 +7,14 @@ export default class QuickfixList extends BasicList {
   public description = 'quickfix list'
 
   constructor(nvim: Neovim) {
-    super(nvim)
+    super()
     this.addLocationActions()
   }
 
   public async loadItems(context: ListContext): Promise<ListItem[]> {
     let { nvim } = this
     let { window } = context
-    let list = await nvim.call('getqflist')
+    let list = await nvim.call('getqflist') as any[]
     if (list.length == 0) return []
     let res: ListItem[] = []
     let bufnr: number
@@ -32,8 +32,8 @@ export default class QuickfixList extends BasicList {
       } else if (type == 'W') {
         type = 'Warning'
       }
-      let bufname = await nvim.call('bufname', bufnr)
-      let fullpath = await nvim.call('fnamemodify', [bufname, ':p'])
+      let bufname = await nvim.call('bufname', bufnr) as string
+      let fullpath = await nvim.call('fnamemodify', [bufname, ':p']) as string
       let uri = URI.file(fullpath).toString()
       let line = await workspace.getLine(uri, lnum - 1)
       let pos = Position.create(lnum - 1, characterIndex(line, col - 1))

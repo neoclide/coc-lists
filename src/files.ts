@@ -2,7 +2,7 @@ import { ChildProcess, spawn } from 'child_process'
 import { BasicList, ListContext, ListTask, Location, Neovim, Range, Uri, workspace } from 'coc.nvim'
 import { EventEmitter } from 'events'
 import fs from 'fs'
-import minimatch from 'minimatch'
+import { minimatch } from 'minimatch'
 import path from 'path'
 import readline from 'readline'
 import { executable } from './util'
@@ -87,7 +87,7 @@ Note that rg ignore hidden files by default.`
   }]
 
   constructor(nvim: Neovim) {
-    super(nvim)
+    super()
     this.addLocationActions()
   }
 
@@ -136,7 +136,7 @@ Note that rg ignore hidden files by default.`
       if (extraArgs.length > 0) {
         // tslint:disable-next-line: prefer-for-of
         for (let i = 0; i < extraArgs.length; i++) {
-          let d = await nvim.call('expand', extraArgs[i])
+          let d = await nvim.call('expand', extraArgs[i]) as string
           try {
             if (fs.lstatSync(d).isDirectory()) {
               dirArgs.push(d)
@@ -153,9 +153,9 @@ Note that rg ignore hidden files by default.`
       } else {
         let valid = await window.valid
         if (valid) {
-          cwds = [await nvim.call('getcwd', window.id)]
+          cwds = [await nvim.call('getcwd', window.id) as string]
         } else {
-          cwds = [await nvim.call('getcwd')]
+          cwds = [await nvim.call('getcwd') as string]
         }
       }
     }
@@ -169,7 +169,7 @@ Note that rg ignore hidden files by default.`
     let config = workspace.getConfiguration('list.source.files')
     let filterByName = config.get<boolean>('filterByName', false)
     if (filterByName) {
-      let { nvim } = this 
+      let { nvim } = this
       nvim.pauseNotification()
       nvim.command('syntax match CocFilesFile /\\t.*$/ contained containedin=CocFilesLine', true)
       nvim.command('highlight default link CocFilesFile Comment', true)

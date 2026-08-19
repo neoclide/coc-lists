@@ -17,6 +17,11 @@
     "url": "git+https://github.com/neoclide/coc-lists.git"
   },
   "scripts": {
+    "test": "coc-test 'test/**/*.test.ts'",
+    "test:nvim": "coc-test --nvim 'test/**/*.test.ts'",
+    "test:vim": "coc-test --vim 'test/**/*.test.ts'",
+    "build": "node esbuild.js",
+    "lint:typecheck": "tsc -p tsconfig.json",
     "prepare": "node esbuild.js"
   },
   "activationEvents": [
@@ -171,15 +176,22 @@
   "license": "MIT",
   "devDependencies": {
     "@types/colors": "^1.2.4",
-    "@types/minimatch": "^5.1.2",
-    "@types/node": "16.18",
+    "@types/node": "^22.19",
     "@types/which": "^3.0.4",
-    "coc.nvim": "0.0.83-next.19",
+    "coc-test": "^0.1.8",
+    "coc.nvim": "0.0.83-next.26",
     "colors": "^1.4.0",
-    "esbuild": "^0.25.0",
-    "minimatch": "5.1.2",
-    "typescript": "^5.7.3",
+    "esbuild": "^0.28.2",
+    "minimatch": "10.2.6",
+    "typescript": "^6.0.3",
     "which": "^5.0.0"
   },
-  "dependencies": {}
+  "coc-test": {
+    "entryFile": "src/index.ts",
+    "user-settings": {
+      "lists.disabledLists": [
+        "locationlist"
+      ]
+    }
+  }
 }

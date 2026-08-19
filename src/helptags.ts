@@ -9,7 +9,7 @@ export default class Helptags extends BasicList {
   public readonly defaultAction = 'show'
 
   constructor(nvim: Neovim) {
-    super(nvim)
+    super()
     this.addAction('show', item => {
       nvim.command(`help ${item.data.name}`, true)
     })
@@ -21,7 +21,7 @@ export default class Helptags extends BasicList {
     if (!rtp) return []
     let folders = rtp.split(',')
     let result: ListItem[] = []
-    let cwd = await this.nvim.call('getcwd')
+    let cwd = await this.nvim.call('getcwd') as string
     await Promise.all(folders.map(folder => {
       return new Promise<void>(resolve => {
         let file = path.join(folder, 'doc/tags')

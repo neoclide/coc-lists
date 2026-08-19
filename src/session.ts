@@ -4,6 +4,11 @@ import os from 'os'
 import path from 'path'
 import { promisify } from 'util'
 
+export function getSessionCwd(content: string, fallback: string): string {
+  let line = content.split(/\r?\n/).find(s => s.startsWith('cd '))
+  return line ? line.replace(/^cd\s+/, '') : fallback
+}
+
 export default class SessionList extends BasicList {
   public readonly name = 'sessions'
   public readonly defaultAction = 'load'
@@ -12,7 +17,7 @@ export default class SessionList extends BasicList {
   private mru: Mru
 
   constructor(nvim: Neovim, private extensionPath: string, saveOnVimLeave: boolean) {
-    super(nvim)
+    super()
     this.mru = workspace.createMru('sessions')
     this.addLocationActions()
 
@@ -41,9 +46,9 @@ export default class SessionList extends BasicList {
         let escaped: string
         if (!path.isAbsolute(name)) {
           let folder = this.getSessionFolder()
-          escaped = await nvim.call('fnameescape', [path.join(folder, name)])
+          escaped = await nvim.call('fnameescape', [path.join(folder, name)]) as string
         } else {
-          escaped = await nvim.call('fnameescape', [name])
+          escaped = await nvim.call('fnameescape', [name]) as string
           name = path.basename(name, '.vim')
         }
         await nvim.command(`silent mksession! ${escaped}`)
@@ -115,10 +120,9 @@ export default class SessionList extends BasicList {
     let { nvim } = this
     let config = workspace.getConfiguration('session')
     let restart = config.get<boolean>('restartOnSessionLoad', false)
-    if (restart && workspace.isNvim && process.env.TERM_PROGRAM.startsWith('iTerm.app')) {
+    if (restart && workspace.isNvim && process.env.TERM_PROGRAM?.startsWith('iTerm.app')) {
       let content = await promisify(fs.readFile)(filepath, 'utf8')
-      let line = content.split(/\r?\n/).find(s => s.startsWith('cd '))
-      let cwd = line.replace(/^cd\s+/, '')
+      let cwd = getSessionCwd(content, await nvim.call('getcwd') as string)
       let cmd = `${path.join(this.extensionPath, 'nvimstart')} ${filepath} ${cwd}`
       nvim.call('jobstart', [cmd, { detach: 1 }], true)
       nvim.command('silent! wa | silent quitall!', true)

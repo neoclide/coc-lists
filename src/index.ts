@@ -83,7 +83,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
   if (!isDisabled('grep')) {
     subscriptions.push(listManager.registerList(new GrepList(nvim)))
   }
-  if (!isDisabled('LocationList')) {
+  if (!isDisabled('locationlist')) {
     subscriptions.push(listManager.registerList(new LocationList(nvim)))
   }
   if (!isDisabled('mru')) {
