@@ -3,6 +3,7 @@ import fs from 'fs'
 import os from 'os'
 import path from 'path'
 import { promisify } from 'util'
+import { wait } from './util'
 
 export function getSessionCwd(content: string, fallback: string): string {
   let line = content.split(/\r?\n/).find(s => s.startsWith('cd '))
@@ -33,27 +34,26 @@ export default class SessionList extends BasicList {
     })
 
     this.disposables.push(commands.registerCommand('session.save', async (name?: string) => {
-      setTimeout(async () => {
+      await wait(50)
+      if (!name) {
+        name = await nvim.getVvar('this_session') as string
         if (!name) {
-          name = await nvim.getVvar('this_session') as string
-          if (!name) {
-            let defaultValue = path.basename(workspace.rootPath)
-            name = await window.requestInput('session name', defaultValue)
-            if (!name) return
-          }
+          let defaultValue = path.basename(workspace.rootPath)
+          name = await window.requestInput('session name', defaultValue)
+          if (!name) return
         }
-        if (!name.endsWith('.vim')) name = name + '.vim'
-        let escaped: string
-        if (!path.isAbsolute(name)) {
-          let folder = this.getSessionFolder()
-          escaped = await nvim.call('fnameescape', [path.join(folder, name)]) as string
-        } else {
-          escaped = await nvim.call('fnameescape', [name]) as string
-          name = path.basename(name, '.vim')
-        }
-        await nvim.command(`silent mksession! ${escaped}`)
-        window.showMessage(`Saved session: ${name}`, 'more')
-      }, 50)
+      }
+      if (!name.endsWith('.vim')) name = name + '.vim'
+      let escaped: string
+      if (!path.isAbsolute(name)) {
+        let folder = this.getSessionFolder()
+        escaped = await nvim.call('fnameescape', [path.join(folder, name)]) as string
+      } else {
+        escaped = await nvim.call('fnameescape', [name]) as string
+        name = path.basename(name, '.vim')
+      }
+      await nvim.command(`silent mksession! ${escaped}`)
+      window.showMessage(`Saved session: ${name}`, 'more')
     }))
 
     this.disposables.push(commands.registerCommand('session.load', async (name?: string) => {
@@ -73,9 +73,8 @@ export default class SessionList extends BasicList {
         let folder = this.getSessionFolder()
         filepath = path.join(folder, name.endsWith('.vim') ? name : `${name}.vim`)
       }
-      setTimeout(async () => {
-        await this.loadSession(filepath)
-      }, 30)
+      await wait(30)
+      await this.loadSession(filepath)
     }))
 
     this.disposables.push(commands.registerCommand('session.restart', async () => {
@@ -88,10 +87,11 @@ export default class SessionList extends BasicList {
         let folder = this.getSessionFolder()
         filepath = path.join(folder, 'default.vim')
       }
-      await nvim.command(`silent mksession! ${filepath}`)
-      let cwd = await nvim.call('getcwd')
-      let cmd = `${path.join(this.extensionPath, 'nvimstart')} ${filepath} ${cwd}`
-      nvim.call('jobstart', [cmd, { detach: 1 }], true)
+      let escaped = await nvim.call('fnameescape', [filepath]) as string
+      await nvim.command(`silent mksession! ${escaped}`)
+      let cwd = await nvim.call('getcwd') as string
+      let command = [path.join(this.extensionPath, 'nvimstart'), filepath, cwd]
+      nvim.call('jobstart', [command, { detach: 1 }], true)
       nvim.command('silent! wa | silent quitall!', true)
     }))
 
@@ -110,7 +110,8 @@ export default class SessionList extends BasicList {
             let folder = path.dirname(curr)
             if (!fs.existsSync(folder)) return
           }
-          nvim.command(`silent! mksession! ${curr}`, true)
+          let escaped = await nvim.call('fnameescape', [curr]) as string
+          nvim.command(`silent! mksession! ${escaped}`, true)
         }
       }))
     }
@@ -123,8 +124,8 @@ export default class SessionList extends BasicList {
     if (restart && workspace.isNvim && process.env.TERM_PROGRAM?.startsWith('iTerm.app')) {
       let content = await promisify(fs.readFile)(filepath, 'utf8')
       let cwd = getSessionCwd(content, await nvim.call('getcwd') as string)
-      let cmd = `${path.join(this.extensionPath, 'nvimstart')} ${filepath} ${cwd}`
-      nvim.call('jobstart', [cmd, { detach: 1 }], true)
+      let command = [path.join(this.extensionPath, 'nvimstart'), filepath, cwd]
+      nvim.call('jobstart', [command, { detach: 1 }], true)
       nvim.command('silent! wa | silent quitall!', true)
     } else {
       await this.mru.add(filepath)

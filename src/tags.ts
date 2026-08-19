@@ -6,28 +6,42 @@ import path from 'path'
 import readline from 'readline'
 import { isParentFolder } from './util'
 
-class FileTask extends EventEmitter implements ListTask {
+export class FileTask extends EventEmitter implements ListTask {
   private streams: ReadStream[] = []
   constructor() {
     super()
   }
 
   public start(files: string[], cwd: string): void {
-    let count = files.length
-    for (let file of files) {
-      let filepath = path.isAbsolute(file) ? file : path.join(cwd, file)
-      if (!fs.existsSync(filepath)) continue
+    let filepaths = files
+      .map(file => path.isAbsolute(file) ? file : path.join(cwd, file))
+      .filter(filepath => fs.existsSync(filepath))
+    let count = filepaths.length
+    if (count == 0) {
+      process.nextTick(() => this.emit('end'))
+      return
+    }
+    let done = new Set<string>()
+    filepaths.forEach((filepath, index) => {
       let stream = fs.createReadStream(filepath, { encoding: 'utf8' })
       this.streams.push(stream)
       const rl = readline.createInterface({
         input: stream
       })
       let dirname = path.dirname(filepath)
+      let finish = (): void => {
+        if (done.has(index.toString())) return
+        done.add(index.toString())
+        count = count - 1
+        if (count == 0) {
+          this.emit('end')
+        }
+      }
       rl.on('line', line => {
         if (line.startsWith('!')) return
         let [name, file, pattern] = line.split('\t')
         if (!pattern) return
-        let fullpath = path.join(dirname, file)
+        let fullpath = path.isAbsolute(file) ? file : path.join(dirname, file)
         let uri = URI.file(fullpath).toString()
         let relativeFile = isParentFolder(cwd, fullpath) ? path.relative(cwd, fullpath) : fullpath
         this.emit('data', {
@@ -41,16 +55,13 @@ class FileTask extends EventEmitter implements ListTask {
         })
       })
       rl.on('error', e => {
-        count = count - 1
         this.emit('error', e.message)
+        finish()
       })
       rl.on('close', () => {
-        count = count - 1
-        if (count == 0) {
-          this.emit('end')
-        }
+        finish()
       })
-    }
+    })
   }
 
   public dispose(): void {

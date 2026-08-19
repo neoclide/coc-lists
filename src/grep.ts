@@ -22,6 +22,10 @@ export class Task extends EventEmitter implements ListTask {
 
   public start(text: string, cmd: string, args: string[], cwds: string[], patterns: string[], maxLines: number): void {
     this.remain = cwds.length
+    if (this.remain == 0) {
+      process.nextTick(() => this.emit('end'))
+      return
+    }
     for (let cwd of cwds) {
       let process = spawn(cmd, args, { cwd })
       this.processes.push(process)
@@ -58,7 +62,7 @@ export class Task extends EventEmitter implements ListTask {
           filterText: this.interactive ? '' : escaped,
           location: {
             text,
-            uri: file,
+            uri: URI.file(file).toString(),
             line: ms[4],
           }
         })
@@ -192,9 +196,4 @@ Grep source provide some uniformed options to ease differences between rg and ag
     task.start(text, cmd, args, cwds, patterns, maxLines)
     return task
   }
-}
-
-function byteSlice(content: string, start: number, end?: number): string {
-  let buf = Buffer.from(content, 'utf8')
-  return buf.slice(start, end).toString('utf8')
 }

@@ -2,9 +2,13 @@ import { BasicList, Uri as URI, commands, Location, Range, Document, events, Lis
 import fs from 'fs'
 import { minimatch } from 'minimatch'
 import path from 'path'
-import { isParentFolder, wait } from './util'
+import { isGitIgnored, isParentFolder, wait } from './util'
 
-export default class MruList extends BasicList {
+export function isMruExcluded(filepath: string, patterns: string[]): boolean {
+  return patterns.some(pattern => minimatch(filepath, pattern))
+}
+
+export class MruList extends BasicList {
   public readonly name = 'mru'
   public readonly defaultAction = 'open'
   public description = 'most recent used files in current cwd'
@@ -18,7 +22,9 @@ export default class MruList extends BasicList {
 
   constructor(nvim: Neovim) {
     super()
-    this.mru = workspace.createMru('mru')
+    let config = workspace.getConfiguration('list.source.mru')
+    let maxLength = config.get<number>('maxLength', 1000)
+    this.mru = new Mru('mru', undefined, maxLength)
     this.addLocationActions()
     this.addAction(
       'delete',
@@ -80,7 +86,9 @@ export default class MruList extends BasicList {
     if (preview == 1) return
     let filepath = uri.fsPath
     let patterns = this.config.get<string[]>('source.mru.excludePatterns', [])
-    if (patterns.some(p => minimatch(filepath, p))) return
+    if (isMruExcluded(filepath, patterns)) return
+    let ignoreGitIgnore = this.config.get<boolean>('source.mru.ignoreGitIgnore', false)
+    if (ignoreGitIgnore && await isGitIgnored(filepath)) return
     await this.mru.add(filepath)
   }
 
@@ -128,3 +136,5 @@ export default class MruList extends BasicList {
     }
   }
 }
+
+export default MruList

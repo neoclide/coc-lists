@@ -1,5 +1,6 @@
 import { IList, ListAction, ListContext, ListItem, Neovim } from 'coc.nvim'
 import colors from 'colors/safe'
+import { parseVimSource } from './util'
 
 export default class Functions implements IList {
   public readonly name = 'functions'
@@ -15,12 +16,14 @@ export default class Functions implements IList {
         let { funcname } = item.data
         let res = await nvim.eval(`split(execute("verbose function ${funcname}"),"\n")[1]`) as string
 
-          let [filepath, _ ,line] = res.replace(/^\s+Last\sset\sfrom\s+/, '').split(/\s+/)
-          if (line) {
-            nvim.command(`edit +${line} ${filepath}`, true)
-          } else {
-            nvim.command(`edit +/${funcname} ${filepath}`, true)
-          }
+        let source = parseVimSource(res)
+        if (!source) return
+        let filepath = await nvim.call('fnameescape', [source.filepath]) as string
+        if (source.line) {
+          nvim.command(`edit +${source.line} ${filepath}`, true)
+        } else {
+          nvim.command(`edit +/${funcname} ${filepath}`, true)
+        }
       }
     })
   }

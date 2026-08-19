@@ -7,11 +7,15 @@ import path from 'path'
 import readline from 'readline'
 import { executable } from './util'
 
-class Task extends EventEmitter implements ListTask {
+export class Task extends EventEmitter implements ListTask {
   private processes: ChildProcess[] = []
 
   public start(cmd: string, args: string[], cwds: string[], patterns: string[]): void {
     let remain = cwds.length
+    if (remain == 0) {
+      process.nextTick(() => this.emit('end'))
+      return
+    }
     let config = workspace.getConfiguration('list.source.files')
     let filterByName = config.get<boolean>('filterByName', false)
     for (let cwd of cwds) {
@@ -29,7 +33,7 @@ class Task extends EventEmitter implements ListTask {
 
       rl.on('line', line => {
         let file = line
-        if (file.indexOf(cwd) < 0) {
+        if (!path.isAbsolute(file)) {
           file = path.join(cwd, line)
         }
         if (hasPattern && patterns.some(p => minimatch(file, p))) return

@@ -2,7 +2,7 @@ import { IList, ListAction, ListContext, ListItem, Neovim } from 'coc.nvim'
 import colors from 'colors/safe'
 import fs from 'fs'
 import util from 'util'
-import { pad } from './util/index'
+import { pad, parseVimSource } from './util/index'
 
 const regex = /^\|:(\S+)\|\t(\S+)\t(.*)$/
 
@@ -41,10 +41,11 @@ export default class Commands implements IList {
         let { command } = item.data
         if (!/^[A-Z]/.test(command)) return
         let res = await nvim.eval(`split(execute("verbose command ${command}"),"\n")[2]`) as string
-        if (/Last\sset\sfrom/.test(res)) {
-          let [filepath, _ ,line] = res.replace(/^\s+Last\sset\sfrom\s+/, '').split(/\s+/)
-          if (line) {
-            nvim.command(`edit +${line} ${filepath}`, true)
+        let source = parseVimSource(res)
+        if (source) {
+          let filepath = await nvim.call('fnameescape', [source.filepath]) as string
+          if (source.line) {
+            nvim.command(`edit +${source.line} ${filepath}`, true)
           } else {
             nvim.command(`edit +/${command} ${filepath}`, true)
           }

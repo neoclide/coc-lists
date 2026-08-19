@@ -2,15 +2,19 @@
 session=$1
 cwd=$2
 
-cat << EOF | osascript -
+osascript - "$session" "$cwd" <<'EOF'
+on run argv
+	set session_path to item 1 of argv
+	set cwd_path to item 2 of argv
 tell application "iTerm2"
 	tell current window
 		tell current session
 			delay 0.2
 			write text "clear"
-			write text "cd $cwd"
-			write text "nvim -c 'silent! source $session'"
+			write text "cd " & quoted form of cwd_path
+			write text "nvim -S " & quoted form of session_path
 		end tell
 	end tell
 end tell
+end run
 EOF

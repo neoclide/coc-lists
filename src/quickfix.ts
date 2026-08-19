@@ -35,8 +35,9 @@ export default class QuickfixList extends BasicList {
       let bufname = await nvim.call('bufname', bufnr) as string
       let fullpath = await nvim.call('fnamemodify', [bufname, ':p']) as string
       let uri = URI.file(fullpath).toString()
-      let line = await workspace.getLine(uri, lnum - 1)
-      let pos = Position.create(lnum - 1, characterIndex(line, col - 1))
+      let lineIndex = Math.max(0, lnum - 1)
+      let line = await workspace.getLine(uri, lineIndex)
+      let pos = Position.create(lineIndex, characterIndex(line, col - 1))
       res.push({
         label: `${ignoreFilepath ? '' : bufname} |${type ? type + ' ' : ''}${lnum} col ${col}| ${text}`,
         location: Location.create(uri, Range.create(pos, pos)),

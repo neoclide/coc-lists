@@ -1,5 +1,6 @@
 import { IList, ListAction, ListContext, ListItem, Neovim } from 'coc.nvim'
 import colors from 'colors/safe'
+import { parseVimSource } from './util'
 
 const regex = /^(\S+)\s+(\S+)\s+(.*)$/
 
@@ -21,12 +22,13 @@ export default class Maps implements IList {
         let { mode, key } = item.data
         let cmd = JSON.stringify(`verbose ${mode}map ${key}`)
         let res = await nvim.eval(`split(execute(${cmd}),"\n")[-1]`) as string
-        if (/Last\sset\sfrom/.test(res)) {
+        let source = parseVimSource(res)
+        if (source) {
           // the format of the latest vim and neovim is:
           //   Last set from ~/dotfiles/vimrc/remap.vim line 183
-          let [filepath, _ ,line] = res.replace(/^\s+Last\sset\sfrom\s+/, '').split(/\s+/)
-          if (line) {
-            nvim.command(`edit +${line} ${filepath}`, true)
+          let filepath = await nvim.call('fnameescape', [source.filepath]) as string
+          if (source.line) {
+            nvim.command(`edit +${source.line} ${filepath}`, true)
           } else {
             nvim.command(`edit +/${key} ${filepath}`, true)
           }

@@ -45,7 +45,8 @@ export default class BufferList extends BasicList {
       let { bufnr, bufname, isArgs } = item.data
       await nvim.command(`bdelete ${bufnr}`)
       if (isArgs) {
-        await nvim.command(`argdelete ${bufname}`)
+        let escaped = await nvim.call('fnameescape', bufname) as string
+        await nvim.command(`argdelete ${escaped}`)
       }
     }, { persist: true, reload: true })
 

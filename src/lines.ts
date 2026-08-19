@@ -1,7 +1,7 @@
 import { AnsiHighlight, BasicList, ListContext, ListItem, Location, Neovim, Range, workspace } from 'coc.nvim'
 import { pad } from './util'
 
-export default class Lines extends BasicList {
+export class Lines extends BasicList {
   public readonly name = 'lines'
   public readonly searchHighlight = false
   public readonly interactive = true
@@ -58,7 +58,8 @@ export default class Lines extends BasicList {
       if (ranges.length != patterns.length) {
         continue
       }
-      let range = Range.create(lnum - 1, ranges[0][0], lnum - 1, ranges[0][1])
+      let first = ranges[0] ?? [0, 0]
+      let range = Range.create(lnum - 1, first[0], lnum - 1, first[1])
       let pre = `${lnum}${pad(lnum.toString(), total)}`
       let pl = pre.length
       let ansiHighlights: AnsiHighlight[] = ranges.map(r => {
@@ -82,6 +83,8 @@ export default class Lines extends BasicList {
     return result
   }
 }
+
+export default Lines
 
 function byteIndex(content: string, index: number): number {
   let s = content.slice(0, index)
