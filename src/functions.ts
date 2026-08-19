@@ -1,8 +1,8 @@
 import { IList, ListAction, ListContext, ListItem, Neovim } from 'coc.nvim'
 import colors from 'colors/safe'
-import { parseVimSource } from './util'
+import { findVimSource } from './util'
 
-export default class Functions implements IList {
+export class Functions implements IList {
   public readonly name = 'functions'
   public readonly description = 'function list'
   public readonly defaultAction = 'open'
@@ -14,9 +14,8 @@ export default class Functions implements IList {
       execute: async item => {
         if (Array.isArray(item)) return
         let { funcname } = item.data
-        let res = await nvim.eval(`split(execute("verbose function ${funcname}"),"\n")[1]`) as string
-
-        let source = parseVimSource(res)
+        let lines = await nvim.eval(`split(execute("verbose function ${funcname}"),"\n")`) as string[]
+        let source = findVimSource(lines)
         if (!source) return
         let filepath = await nvim.call('fnameescape', [source.filepath]) as string
         if (source.line) {
@@ -47,3 +46,5 @@ export default class Functions implements IList {
     return res
   }
 }
+
+export default Functions

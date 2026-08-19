@@ -1,10 +1,10 @@
 import { IList, ListAction, ListContext, ListItem, Neovim } from 'coc.nvim'
 import colors from 'colors/safe'
-import { parseVimSource } from './util'
+import { findVimSource } from './util'
 
 const regex = /^(\S+)\s+(\S+)\s+(.*)$/
 
-export default class Maps implements IList {
+export class Maps implements IList {
   public readonly name = 'maps'
   public readonly description = 'key mappings'
   public readonly defaultAction = 'open'
@@ -21,8 +21,8 @@ export default class Maps implements IList {
         if (Array.isArray(item)) return
         let { mode, key } = item.data
         let cmd = JSON.stringify(`verbose ${mode}map ${key}`)
-        let res = await nvim.eval(`split(execute(${cmd}),"\n")[-1]`) as string
-        let source = parseVimSource(res)
+        let lines = await nvim.eval(`split(execute(${cmd}),"\n")`) as string[]
+        let source = findVimSource(lines)
         if (source) {
           // the format of the latest vim and neovim is:
           //   Last set from ~/dotfiles/vimrc/remap.vim line 183
@@ -64,3 +64,5 @@ export default class Maps implements IList {
     return res
   }
 }
+
+export default Maps

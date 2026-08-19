@@ -1,7 +1,7 @@
 import { BasicList, ListContext, Uri as URI, ListItem, Location, Neovim, Position, Range, workspace } from 'coc.nvim'
 import { characterIndex } from './util'
 
-export default class QuickfixList extends BasicList {
+export class QuickfixList extends BasicList {
   public readonly name = 'quickfix'
   public readonly defaultAction = 'open'
   public description = 'quickfix list'
@@ -63,3 +63,5 @@ export default class QuickfixList extends BasicList {
     })
   }
 }
+
+export default QuickfixList

@@ -2,7 +2,7 @@ import { BasicList, ListContext, ListItem, Neovim } from 'coc.nvim'
 import colors from 'colors/safe'
 const regex = /^\s*(\d+)(.+?)"(.+?)".*/
 
-export default class BufferList extends BasicList {
+export class BufferList extends BasicList {
   public readonly name = 'buffers'
   public readonly defaultAction = 'open'
   public description = 'get buffer list'
@@ -106,3 +106,5 @@ export default class BufferList extends BasicList {
     }, [])
   }
 }
+
+export default BufferList

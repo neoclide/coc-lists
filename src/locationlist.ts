@@ -1,7 +1,7 @@
 import { BasicList, ListContext, Uri as URI, ListItem, Location, Neovim, Position, Range, workspace } from 'coc.nvim'
 import { characterIndex } from './util'
 
-export default class LocationList extends BasicList {
+export class LocationList extends BasicList {
   public readonly name = 'locationlist'
   public readonly defaultAction = 'open'
   public description = 'locationlist of current window'
@@ -61,3 +61,5 @@ export default class LocationList extends BasicList {
     })
   }
 }
+
+export default LocationList

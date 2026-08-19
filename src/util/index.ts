@@ -50,6 +50,19 @@ export function parseVimSource(value: string): { filepath: string, line?: number
   return withoutLine ? { filepath: withoutLine[1] } : undefined
 }
 
+/**
+ * Find the "Last set from" line in verbose command/function/map output.
+ * The line index differs between Vim and Neovim, so search instead of slicing.
+ */
+export function findVimSource(lines: string[]): { filepath: string, line?: number } | undefined {
+  for (let line of lines) {
+    if (/^\s*Last set from/.test(line)) {
+      return parseVimSource(line)
+    }
+  }
+  return undefined
+}
+
 export function wait(ms: number): Promise<any> {
   return new Promise(resolve => {
     setTimeout(() => {
