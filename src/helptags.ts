@@ -1,9 +1,9 @@
-import { BasicList, Uri, ListContext, ListItem, Neovim, workspace } from 'coc.nvim'
+import { BasicList, Uri, ListContext, ListItem, Neovim } from 'coc.nvim'
 import fs from 'fs'
 import path from 'path'
 import { isParentFolder } from './util'
 
-export default class Helptags extends BasicList {
+export class Helptags extends BasicList {
   public readonly name = 'helptags'
   public readonly description = 'helptags of vim'
   public readonly defaultAction = 'show'
@@ -17,9 +17,7 @@ export default class Helptags extends BasicList {
   }
 
   public async loadItems(_context: ListContext): Promise<ListItem[]> {
-    let rtp = workspace.env.runtimepath
-    if (!rtp) return []
-    let folders = rtp.split(',')
+    let folders = await this.nvim.runtimePaths
     let result: ListItem[] = []
     let cwd = await this.nvim.call('getcwd') as string
     await Promise.all(folders.map(folder => {
@@ -63,3 +61,5 @@ export default class Helptags extends BasicList {
     nvim.resumeNotification(false, true)
   }
 }
+
+export default Helptags
