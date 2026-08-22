@@ -1,3 +1,7 @@
+## 1.5.6
+
+- fix: use current runtimepath for helptags (#156) (4b73ada)
+
 ## 1.5.5
 
 - test: split tests by source and fix verbose source lookup (74ea0c3)
