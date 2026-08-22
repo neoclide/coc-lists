@@ -20,15 +20,15 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Check out the default branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ github.event.repository.default_branch }}
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: "22.15.0"
+          node-version: "24"
           package-manager-cache: false
           registry-url: https://registry.npmjs.org
 
