@@ -1,7 +1,7 @@
 # coc-lists
 
 <p align="center">
-  <img src="assets/logo.png" alt="coc-lists logo" width="180">
+  <img src="assets/coc-lists-logo.png" alt="coc-lists logo" width="180">
 </p>
 
 [![CI](https://github.com/neoclide/coc-lists/actions/workflows/test.yml/badge.svg)](https://github.com/neoclide/coc-lists/actions/workflows/test.yml)
