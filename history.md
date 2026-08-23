@@ -1,3 +1,7 @@
+## 1.5.7
+
+- fix release.yml (f9feb00)
+
 ## 1.5.6
 
 - fix: use current runtimepath for helptags (#156) (4b73ada)
