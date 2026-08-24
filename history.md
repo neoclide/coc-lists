@@ -1,3 +1,8 @@
+## 1.5.8
+
+- rename logo file (15dc794)
+- add logo.png (f4c528b)
+
 ## 1.5.7
 
 - fix release.yml (f9feb00)
