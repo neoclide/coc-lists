@@ -1,3 +1,8 @@
+## 1.5.9
+
+- Merge branch 'fix/issue-141-helptags-runtimepath' (34b3e1c)
+- fix: use current runtimepath for helptags (d6040c1)
+
 ## 1.5.8
 
 - rename logo file (15dc794)
